@@ -1,0 +1,10 @@
+model Batch {
+    id              String           @id @default(uuid())
+    batchNo         Int              @unique
+    description     String?
+    departmentId    String
+    department      Department       @relation(fields: [departmentId], references: [id])
+    courseOfferings CourseOffering[]
+    createdAt       DateTime         @default(now())
+    updatedAt       DateTime         @updatedAt
+}

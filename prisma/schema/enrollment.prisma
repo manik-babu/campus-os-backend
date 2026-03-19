@@ -1,0 +1,20 @@
+model Enrollment {
+    id               String           @id @default(uuid())
+    studentId        BigInt
+    student          User             @relation(fields: [studentId], references: [id])
+    courseOfferingId String
+    courseOffering   CourseOffering   @relation(fields: [courseOfferingId], references: [id])
+    status           EnrollmentStatus @default(ACTIVE)
+    result           Result?
+    billItems        BillItem?
+    createdAt        DateTime         @default(now())
+    updatedAt        DateTime         @updatedAt
+
+    @@map("enrollments")
+}
+
+enum EnrollmentStatus {
+    ACTIVE
+    COMPLETED
+    DROPPED
+}

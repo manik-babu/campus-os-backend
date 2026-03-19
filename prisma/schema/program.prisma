@@ -1,0 +1,11 @@
+model Program {
+    id             String          @id @default(uuid())
+    name           String          @unique
+    description    String?
+    departments    Department[]
+    admissionForms AdmissionForm[]
+    createdAt      DateTime        @default(now())
+    updatedAt      DateTime        @updatedAt
+
+    @@map("programs")
+}

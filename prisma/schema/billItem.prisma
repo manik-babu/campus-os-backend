@@ -1,0 +1,13 @@
+model BillItem {
+    id           String     @id @default(uuid())
+    name         String
+    enrollmentId String     @unique
+    enrollment   Enrollment @relation(fields: [enrollmentId], references: [id])
+    totalAmount  Float
+    billId       String
+    bill         Bill       @relation(fields: [billId], references: [id])
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
+
+    @@map("bill_items")
+}

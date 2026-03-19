@@ -1,0 +1,13 @@
+model Semester {
+    id              String           @id @default(uuid())
+    name            String           @unique
+    description     String?
+    classStart      DateTime
+    classEnd        DateTime
+    courseOfferings CourseOffering[]
+    bills           Bill[]
+    createdAt       DateTime         @default(now())
+    updatedAt       DateTime         @updatedAt
+
+    @@map("semesters")
+}

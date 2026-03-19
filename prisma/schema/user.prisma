@@ -1,10 +1,35 @@
 model User {
-    id    Int    @id @default(autoincrement())
-    name  String
-    email String @unique
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id              BigInt           @id @default(autoincrement())
+    name            String
+    batch           Int
+    image           String
+    email           String           @unique
+    role            UserRole
+    departmentId    String
+    department      Department       @relation(fields: [departmentId], references: [id])
+    status          UserStatus
+    studentProfile  StudentProfile?
+    facultyProfile  FacultyProfile?
+    courseOfferings CourseOffering[]
+    enrollments     Enrollment[]
+    bills           Bill[]
+    createdAt       DateTime         @default(now())
+    updatedAt       DateTime         @updatedAt
 
     @@map("users")
+}
+
+enum UserRole {
+    SUPER_ADMIN
+    ADMIN
+    STUDENT
+    FACULTY
+}
+
+enum UserStatus {
+    ACTIVE
+    INACTIVE
+    SUSPENDED
+    TRANSFERRED
+    GRADUATED
 }

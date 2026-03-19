@@ -1,0 +1,13 @@
+model Graduation {
+    id               String         @id @default(uuid())
+    facultyProfileId String
+    facultyProfile   FacultyProfile @relation(fields: [facultyProfileId], references: [id])
+    degree           String
+    major            String
+    institute        String
+    graduationDate   DateTime
+    createdAt        DateTime       @default(now())
+    updatedAt        DateTime       @updatedAt
+
+    @@map("graduations")
+}

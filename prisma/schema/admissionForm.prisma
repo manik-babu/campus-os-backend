@@ -1,0 +1,27 @@
+model AdmissionForm {
+    id               String     @id @default(uuid())
+    programId        String
+    program          Program    @relation(fields: [programId], references: [id])
+    departmentId     String
+    department       Department @relation(fields: [departmentId], references: [id])
+    name             String
+    image            String
+    email            String
+    fatherName       String
+    motherName       String
+    birthDate        DateTime
+    permanentAddress String
+    presentAddress   String
+    phoneNumber      String
+    schoolName       String
+    collegeName      String
+    sscGpa           Decimal    @db.Decimal(3, 2)
+    hscGpa           Decimal    @db.Decimal(3, 2)
+    sscPassingYear   Int
+    hscPassingYear   Int
+    bloodGroup       String?
+    createdAt        DateTime   @default(now())
+    updatedAt        DateTime   @updatedAt
+
+    @@map("admission_forms")
+}

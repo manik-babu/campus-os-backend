@@ -1,0 +1,19 @@
+model FacultyProfile {
+    id               String       @id @default(uuid())
+    userId           BigInt       @unique
+    user             User         @relation(fields: [userId], references: [id])
+    designation      String
+    departmentId     String
+    department       Department   @relation(fields: [departmentId], references: [id])
+    phoneNumber      String
+    salary           Decimal      @db.Decimal(10, 2)
+    bloodGroup       String?
+    presentAddress   String
+    permanentAddress String
+    graduations      Graduation[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("faculty_profiles")
+}
