@@ -24,12 +24,14 @@ const globalErrorHandler = (err: Error, req: Request, res: Response, next: NextF
             message: issue.message
         }));
 
+    } else if (err instanceof Error) {
+        message = err.message;
     }
     res.status(statusCode).json({
         ok: false,
         status: statusCode,
         message: message,
-        error: err.message,
+        error: JSON.stringify(err),
         zodErrors: zodErrors
     });
 };

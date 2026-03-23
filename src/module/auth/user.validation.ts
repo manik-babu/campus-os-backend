@@ -133,5 +133,5 @@ export const facultyProfileZodSchema = z.object({
 });
 export const loginZodSchema = z.object({
     idNo: z.string(),
-    password: z.string().min(6, "Password must be at least 6 characters long"),
+    password: z.string(),
 });
