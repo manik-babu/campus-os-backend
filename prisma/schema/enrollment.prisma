@@ -1,6 +1,6 @@
 model Enrollment {
     id               String           @id @default(uuid())
-    studentId        BigInt
+    studentId        String
     student          User             @relation(fields: [studentId], references: [id])
     courseOfferingId String
     courseOffering   CourseOffering   @relation(fields: [courseOfferingId], references: [id])

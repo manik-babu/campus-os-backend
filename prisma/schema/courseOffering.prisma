@@ -6,7 +6,7 @@ model CourseOffering {
     semester    Semester     @relation(fields: [semesterId], references: [id])
     batchId     String
     batch       Batch        @relation(fields: [batchId], references: [id])
-    facultyId   BigInt
+    facultyId   String
     faculty     User         @relation(fields: [facultyId], references: [id])
     creditFees  Decimal      @db.Decimal(10, 2)
     enrollments Enrollment[]

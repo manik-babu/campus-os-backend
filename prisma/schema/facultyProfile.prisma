@@ -1,10 +1,10 @@
 model FacultyProfile {
     id               String       @id @default(uuid())
-    userId           BigInt       @unique
-    user             User         @relation(fields: [userId], references: [id])
+    userId           String       @unique
+    user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
     designation      String
     departmentId     String
-    department       Department   @relation(fields: [departmentId], references: [id])
+    department       Department   @relation(fields: [departmentId], references: [id], onDelete: Cascade)
     phoneNumber      String
     salary           Decimal      @db.Decimal(10, 2)
     bloodGroup       String?
@@ -16,4 +16,18 @@ model FacultyProfile {
     updatedAt DateTime @updatedAt
 
     @@map("faculty_profiles")
+}
+
+model Graduation {
+    id               String         @id @default(uuid())
+    facultyProfileId String
+    facultyProfile   FacultyProfile @relation(fields: [facultyProfileId], references: [id], onDelete: Cascade)
+    degree           String
+    major            String
+    institute        String
+    graduationDate   DateTime
+    createdAt        DateTime       @default(now())
+    updatedAt        DateTime       @updatedAt
+
+    @@map("graduations")
 }

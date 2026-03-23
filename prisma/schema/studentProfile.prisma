@@ -1,7 +1,13 @@
 model StudentProfile {
-    id               String   @id @default(uuid())
-    userId           BigInt   @unique
-    user             User     @relation(fields: [userId], references: [id])
+    id               String     @id @default(uuid())
+    userId           String     @unique
+    user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+    batchId          String
+    batch            Batch      @relation(fields: [batchId], references: [id])
+    departmentId     String
+    department       Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+    programId        String
+    program          Program    @relation(fields: [programId], references: [id], onDelete: Cascade)
     fatherName       String
     motherName       String
     birthDate        DateTime
@@ -10,8 +16,8 @@ model StudentProfile {
     phoneNumber      String
     schoolName       String
     collegeName      String
-    sscGpa           Decimal  @db.Decimal(3, 2)
-    hscGpa           Decimal  @db.Decimal(3, 2)
+    sscGpa           Decimal    @db.Decimal(3, 2)
+    hscGpa           Decimal    @db.Decimal(3, 2)
     sscPassingYear   Int
     hscPassingYear   Int
     bloodGroup       String?

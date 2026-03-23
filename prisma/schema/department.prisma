@@ -1,16 +1,16 @@
 model Department {
-    id          String  @id @default(uuid())
-    name        String  @unique
-    shortName   String  @unique
-    description String?
-    programId   String
-    program     Program @relation(fields: [programId], references: [id])
-
-    users           User[]
+    id              String           @id @default(uuid())
+    name            String           @unique
+    shortName       String           @unique
+    description     String?
+    programId       String
+    program         Program          @relation(fields: [programId], references: [id])
     batches         Batch[]
     courses         Course[]
     facultyProfiles FacultyProfile[]
     admissionForms  AdmissionForm[]
+    studentProfiles StudentProfile[]
+    adminProfiles   AdminProfile[]
     createdAt       DateTime         @default(now())
     updatedAt       DateTime         @updatedAt
 

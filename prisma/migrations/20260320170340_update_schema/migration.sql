@@ -2,10 +2,25 @@
 CREATE TYPE "EnrollmentStatus" AS ENUM ('ACTIVE', 'COMPLETED', 'DROPPED');
 
 -- CreateEnum
+CREATE TYPE "UserGender" AS ENUM ('MALE', 'FEMALE', 'OTHER');
+
+-- CreateEnum
 CREATE TYPE "UserRole" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'STUDENT', 'FACULTY');
 
 -- CreateEnum
 CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'INACTIVE', 'SUSPENDED', 'TRANSFERRED', 'GRADUATED');
+
+-- CreateTable
+CREATE TABLE "admin_profiles" (
+    "id" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "departmentId" TEXT NOT NULL,
+    "phoneNumber" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "admin_profiles_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "admission_forms" (
@@ -49,7 +64,7 @@ CREATE TABLE "Batch" (
 -- CreateTable
 CREATE TABLE "bills" (
     "id" TEXT NOT NULL,
-    "studentId" BIGINT NOT NULL,
+    "studentId" INTEGER NOT NULL,
     "semesterId" TEXT NOT NULL,
     "totalPaid" DOUBLE PRECISION NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -77,7 +92,7 @@ CREATE TABLE "course_offerings" (
     "courseId" TEXT NOT NULL,
     "semesterId" TEXT NOT NULL,
     "batchId" TEXT NOT NULL,
-    "facultyId" BIGINT NOT NULL,
+    "facultyId" INTEGER NOT NULL,
     "creditFees" DECIMAL(10,2) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -115,13 +130,30 @@ CREATE TABLE "departments" (
 -- CreateTable
 CREATE TABLE "enrollments" (
     "id" TEXT NOT NULL,
-    "studentId" BIGINT NOT NULL,
+    "studentId" INTEGER NOT NULL,
     "courseOfferingId" TEXT NOT NULL,
     "status" "EnrollmentStatus" NOT NULL DEFAULT 'ACTIVE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "enrollments_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "faculty_profiles" (
+    "id" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "designation" TEXT NOT NULL,
+    "departmentId" TEXT NOT NULL,
+    "phoneNumber" TEXT NOT NULL,
+    "salary" DECIMAL(10,2) NOT NULL,
+    "bloodGroup" TEXT,
+    "presentAddress" TEXT NOT NULL,
+    "permanentAddress" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "faculty_profiles_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -139,23 +171,6 @@ CREATE TABLE "graduations" (
 );
 
 -- CreateTable
-CREATE TABLE "faculty_profiles" (
-    "id" TEXT NOT NULL,
-    "userId" BIGINT NOT NULL,
-    "designation" TEXT NOT NULL,
-    "departmentId" TEXT NOT NULL,
-    "phoneNumber" TEXT NOT NULL,
-    "salary" DECIMAL(10,2) NOT NULL,
-    "bloodGroup" TEXT,
-    "presentAddress" TEXT NOT NULL,
-    "permanentAddress" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "faculty_profiles_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "programs" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -170,13 +185,13 @@ CREATE TABLE "programs" (
 CREATE TABLE "results" (
     "id" TEXT NOT NULL,
     "enrollmentId" TEXT NOT NULL,
-    "classTest1" DECIMAL(5,2) NOT NULL,
-    "classTest2" DECIMAL(5,2) NOT NULL,
-    "midterm" DECIMAL(5,2) NOT NULL,
-    "final" DECIMAL(5,2) NOT NULL,
-    "attendance" DECIMAL(5,2) NOT NULL,
-    "points" DECIMAL(10,2) NOT NULL,
-    "grade" TEXT NOT NULL,
+    "classTest1" DECIMAL(5,2),
+    "classTest2" DECIMAL(5,2),
+    "midterm" DECIMAL(5,2),
+    "final" DECIMAL(5,2),
+    "attendance" DECIMAL(5,2),
+    "points" DECIMAL(10,2),
+    "grade" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -199,7 +214,9 @@ CREATE TABLE "semesters" (
 -- CreateTable
 CREATE TABLE "student_profiles" (
     "id" TEXT NOT NULL,
-    "userId" BIGINT NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "batchId" TEXT NOT NULL,
+    "departmentId" TEXT NOT NULL,
     "fatherName" TEXT NOT NULL,
     "motherName" TEXT NOT NULL,
     "birthDate" TIMESTAMP(3) NOT NULL,
@@ -221,19 +238,21 @@ CREATE TABLE "student_profiles" (
 
 -- CreateTable
 CREATE TABLE "users" (
-    "id" BIGSERIAL NOT NULL,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "batch" INTEGER NOT NULL,
-    "image" TEXT NOT NULL,
+    "image" TEXT,
     "email" TEXT NOT NULL,
     "role" "UserRole" NOT NULL,
-    "departmentId" TEXT NOT NULL,
-    "status" "UserStatus" NOT NULL,
+    "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE',
+    "gender" "UserGender" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "admin_profiles_userId_key" ON "admin_profiles"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Batch_batchNo_key" ON "Batch"("batchNo");
@@ -267,6 +286,12 @@ CREATE UNIQUE INDEX "student_profiles_userId_key" ON "student_profiles"("userId"
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
+-- AddForeignKey
+ALTER TABLE "admin_profiles" ADD CONSTRAINT "admin_profiles_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "admin_profiles" ADD CONSTRAINT "admin_profiles_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "departments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "admission_forms" ADD CONSTRAINT "admission_forms_programId_fkey" FOREIGN KEY ("programId") REFERENCES "programs"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -314,13 +339,13 @@ ALTER TABLE "enrollments" ADD CONSTRAINT "enrollments_studentId_fkey" FOREIGN KE
 ALTER TABLE "enrollments" ADD CONSTRAINT "enrollments_courseOfferingId_fkey" FOREIGN KEY ("courseOfferingId") REFERENCES "course_offerings"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "graduations" ADD CONSTRAINT "graduations_facultyProfileId_fkey" FOREIGN KEY ("facultyProfileId") REFERENCES "faculty_profiles"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "faculty_profiles" ADD CONSTRAINT "faculty_profiles_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "faculty_profiles" ADD CONSTRAINT "faculty_profiles_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "departments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "graduations" ADD CONSTRAINT "graduations_facultyProfileId_fkey" FOREIGN KEY ("facultyProfileId") REFERENCES "faculty_profiles"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "results" ADD CONSTRAINT "results_enrollmentId_fkey" FOREIGN KEY ("enrollmentId") REFERENCES "enrollments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -329,4 +354,7 @@ ALTER TABLE "results" ADD CONSTRAINT "results_enrollmentId_fkey" FOREIGN KEY ("e
 ALTER TABLE "student_profiles" ADD CONSTRAINT "student_profiles_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "users" ADD CONSTRAINT "users_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "departments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "student_profiles" ADD CONSTRAINT "student_profiles_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "Batch"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "student_profiles" ADD CONSTRAINT "student_profiles_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "departments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

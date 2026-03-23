@@ -2,13 +2,13 @@ model Result {
     id           String     @id @default(uuid())
     enrollmentId String     @unique
     enrollment   Enrollment @relation(fields: [enrollmentId], references: [id])
-    classTest1   Decimal    @db.Decimal(5, 2)
-    classTest2   Decimal    @db.Decimal(5, 2)
-    midterm      Decimal    @db.Decimal(5, 2)
-    final        Decimal    @db.Decimal(5, 2)
-    attendance   Decimal    @db.Decimal(5, 2)
-    points       Decimal    @db.Decimal(10, 2)
-    grade        String
+    classTest1   Decimal?   @db.Decimal(5, 2)
+    classTest2   Decimal?   @db.Decimal(5, 2)
+    midterm      Decimal?   @db.Decimal(5, 2)
+    final        Decimal?   @db.Decimal(5, 2)
+    attendance   Decimal?   @db.Decimal(5, 2)
+    points       Decimal?   @db.Decimal(10, 2)
+    grade        String?
     createdAt    DateTime   @default(now())
     updatedAt    DateTime   @updatedAt
 

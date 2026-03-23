@@ -3,6 +3,8 @@ import apiRouter from './routes';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import path from 'path';
+import globalErrorHandler from './middleware/globalErrorHandler';
+import notFoundHandler from './middleware/notFound';
 
 const app = express();
 
@@ -24,16 +26,7 @@ app.get("/", (req: Request, res: Response) => {
         time: new Date().toISOString()
     });
 });
-app.use((req: Request, res: Response) => {
-    res.status(404).json({
-        ok: false,
-        status: 404,
-        message: "Route not found",
-        method: req.method,
-        url: req.url,
-        timestamp: new Date().toISOString()
-    })
-
-})
+app.use(notFoundHandler);
+app.use(globalErrorHandler);
 
 export default app;
