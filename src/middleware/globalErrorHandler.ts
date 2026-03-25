@@ -26,6 +26,7 @@ const globalErrorHandler = (err: Error, req: Request, res: Response, next: NextF
 
     } else if (err instanceof Error) {
         message = err.message;
+        statusCode = status.BAD_REQUEST;
     }
     res.status(statusCode).json({
         ok: false,

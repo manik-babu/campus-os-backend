@@ -8,7 +8,10 @@ const requiredEnvVars = [
     'DATABASE_URL',
     "FRONTEND_URL",
     'JWT_SECRET',
-    "BACKEND_URL"
+    "BACKEND_URL",
+    "CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_KEY",
+    "CLOUDINARY_API_SECRET"
 ];
 requiredEnvVars.forEach((varName) => {
     if (!process.env[varName]) {
@@ -22,4 +25,7 @@ export const env = {
     FRONTEND_URL: process.env.FRONTEND_URL || '',
     JWT_SECRET: process.env.JWT_SECRET || '',
     BACKEND_URL: process.env.BACKEND_URL || '',
+    CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || '',
+    CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || '',
+    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || '',
 };

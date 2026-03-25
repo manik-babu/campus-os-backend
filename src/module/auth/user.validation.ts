@@ -46,37 +46,8 @@ enum UserStatus {
 
  */
 
-export const admissionFormZodSchema = z.object({
-    programId: z.string(),
-    departmentId: z.string(),
-    name: z.string(),
-    image: z.string(),
-    email: z.email(),
-    fatherName: z.string(),
-    motherName: z.string(),
-    birthDate: z.string(), // You can further validate this as a date string if needed
-    permanentAddress: z.string(),
-    presentAddress: z.string(),
-    phoneNumber: z.string(),
-    schoolName: z.string(),
-    collegeName: z.string(),
-    sscGpa: z.number().refine(value => value >= 0 && value <= 5, {
-        message: "SSC GPA must be between 0 and 5",
-    }),
-    hscGpa: z.number().refine(value => value >= 0 && value <= 5, {
-        message: "HSC GPA must be between 0 and 5",
-    }),
-    sscPassingYear: z.number().int().refine(value => value > 1900 && value <= new Date().getFullYear(), {
-        message: "SSC Passing Year must be a valid year",
-    }),
-    hscPassingYear: z.number().int().refine(value => value > 1900 && value <= new Date().getFullYear(), {
-        message: "HSC Passing Year must be a valid year",
-    }),
-    bloodGroup: z.string().optional(),
-});
 export const userZodSchema = z.object({
     name: z.string(),
-    image: z.string().optional(),
     email: z.email(),
     password: z.string().min(6, "Password must be at least 6 characters long"),
     role: z.enum(["SUPER_ADMIN", "ADMIN", "STUDENT", "FACULTY"]),

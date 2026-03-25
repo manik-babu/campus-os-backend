@@ -2,8 +2,9 @@ import { AdminProfile, FacultyProfile, StudentProfile, UserRole } from "../../..
 import { prisma } from "../../lib/prisma";
 import bcrypt from "bcryptjs";
 import { AdminProfileWithoutId, FacultyProfileWithGraduations, FacultyProfileWithoutId, ILogin, IRegistration, StudentProfileWithoutId } from "./user.interface"
+import cloudinary from "../../config/cloudinary";
 const registration = async (payload: IRegistration) => {
-    const { userData, profileData } = payload;
+    const { userData, profileData, uploadedImage } = payload;
     const lastUser = await prisma.user.findFirst({
         orderBy: {
             createdAt: "desc"
@@ -24,7 +25,13 @@ const registration = async (payload: IRegistration) => {
     const createdUser = await prisma.user.create({
         data: {
             ...userData,
-            ...idAndRegNo
+            ...idAndRegNo,
+            image: {
+                create: {
+                    publicId: uploadedImage.public_id,
+                    url: uploadedImage.secure_url
+                }
+            }
         },
     })
 
@@ -48,35 +55,26 @@ const registration = async (payload: IRegistration) => {
             })
         }
         else if (createdUser.role === UserRole.FACULTY) {
+            const facultyProfile = profileData as FacultyProfileWithGraduations;
             profile = await prisma.facultyProfile.create({
                 data: {
-                    ...profileData as FacultyProfileWithoutId,
                     userId: createdUser.id,
-
+                    designation: facultyProfile.designation,
+                    departmentId: facultyProfile.departmentId,
+                    phoneNumber: facultyProfile.phoneNumber,
+                    salary: facultyProfile.salary,
+                    presentAddress: facultyProfile.presentAddress,
+                    permanentAddress: facultyProfile.permanentAddress,
+                    graduations: {
+                        create: (facultyProfile).graduations?.map((graduation) => ({
+                            degree: graduation.degree,
+                            institute: graduation.institute,
+                            major: graduation.major,
+                            passingYear: graduation.passingYear,
+                        })) || []
+                    }
                 }
             });
-            if (profile === null) {
-                throw new Error("Faculty profile creation failed");
-            }
-            else {
-                await Promise.all(
-                    (profileData as FacultyProfileWithGraduations).graduations?.map((graduation) =>
-                        prisma.graduation.create({
-                            data: {
-                                ...graduation,
-                                facultyProfileId: profile?.id as string,
-                            }
-                        })
-                    ) || []
-                ).catch(async (error) => {                    // If graduation creation fails, delete the created faculty profile and user to maintain data integrity
-                    await prisma.facultyProfile.delete({
-                        where: { id: profile?.id as string },
-                    });
-                    throw error; // Re-throw the error after cleanup
-                });
-
-            }
-
         }
 
         return { user: createdUser, profile };
@@ -85,6 +83,7 @@ const registration = async (payload: IRegistration) => {
         await prisma.user.delete({
             where: { id: createdUser.id },
         });
+        cloudinary.uploader.destroy(uploadedImage.public_id); // Delete the uploaded image from Cloudinary
         throw error; // Re-throw the error after cleanup
     }
 }
