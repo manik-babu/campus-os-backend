@@ -3,8 +3,41 @@ import { prisma } from "../../lib/prisma";
 import bcrypt from "bcryptjs";
 import { AdminProfileWithoutId, FacultyProfileWithGraduations, FacultyProfileWithoutId, ILogin, IRegistration, StudentProfileWithoutId } from "./user.interface"
 import cloudinary from "../../config/cloudinary";
-const registration = async (payload: IRegistration) => {
-    const { userData, profileData, uploadedImage } = payload;
+import AppError from "../../helper/AppError";
+const registration = async ({ userData, profileData, uploadedImage }: IRegistration) => {
+    if (profileData.departmentId) {
+        const department = await prisma.department.count({
+            where: {
+                id: profileData.departmentId
+            }
+        });
+        if (!department) {
+            await cloudinary.uploader.destroy(uploadedImage.public_id); // Delete the uploaded image from Cloudinary
+            throw new AppError(404, "Department not found");
+        }
+    }
+    if ((profileData as StudentProfileWithoutId).programId) {
+        const program = await prisma.program.count({
+            where: {
+                id: (profileData as StudentProfileWithoutId).programId
+            }
+        });
+        if (!program) {
+            await cloudinary.uploader.destroy(uploadedImage.public_id); // Delete the uploaded image from Cloudinary
+            throw new AppError(404, "Program not found");
+        }
+    }
+    if ((profileData as StudentProfileWithoutId).batchId) {
+        const batch = await prisma.batch.count({
+            where: {
+                id: (profileData as StudentProfileWithoutId).batchId
+            }
+        });
+        if (!batch) {
+            await cloudinary.uploader.destroy(uploadedImage.public_id); // Delete the uploaded image from Cloudinary
+            throw new AppError(404, "Batch not found");
+        }
+    }
     const lastUser = await prisma.user.findFirst({
         orderBy: {
             createdAt: "desc"
@@ -20,21 +53,15 @@ const registration = async (payload: IRegistration) => {
     }
     if (lastUser) {
         idAndRegNo.idNo = (parseInt(lastUser.idNo) + 1).toString();
-        idAndRegNo.registrationNo = `REG${parseInt(lastUser.idNo + 1).toString()}`;
+        idAndRegNo.registrationNo = `REG${parseInt(lastUser.idNo) + 1}`;
     }
     const createdUser = await prisma.user.create({
         data: {
             ...userData,
             ...idAndRegNo,
-            image: {
-                create: {
-                    publicId: uploadedImage.public_id,
-                    url: uploadedImage.secure_url
-                }
-            }
+            image: uploadedImage.secure_url
         },
     })
-
     // After creating the user, we need to create the corresponding profile based on the role
     try {
         let profile: StudentProfile | AdminProfile | FacultyProfile | null = null;

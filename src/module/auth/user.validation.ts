@@ -92,14 +92,16 @@ export const facultyProfileZodSchema = z.object({
     salary: z.number().refine(value => value >= 0, {
         message: "Salary must be a positive number",
     }),
-    bloodGroup: z.string().optional(),
+    bloodGroup: z.string().nullable(),
     presentAddress: z.string(),
     permanentAddress: z.string(),
     graduations: z.array(z.object({
         degree: z.string(),
         major: z.string(),
         institute: z.string(),
-        graduationDate: z.string(), // You can further validate this as a date string if needed
+        passingYear: z.number().int().refine(value => value > 1900 && value <= new Date().getFullYear(), {
+            message: "Passing Year must be a valid year",
+        }),
     })).optional(),
 });
 export const loginZodSchema = z.object({

@@ -1,6 +1,6 @@
 model AdmissionForm {
     id               String     @id @default(uuid())
-    image            Image?     @relation("admissionFormImage")
+    image            String?
     programId        String
     program          Program    @relation(fields: [programId], references: [id])
     departmentId     String
@@ -20,8 +20,8 @@ model AdmissionForm {
     sscPassingYear   Int
     hscPassingYear   Int
     bloodGroup       String?
-    sscDoc           Image?     @relation("sscDoc")
-    hscDoc           Image?     @relation("hscDoc")
+    sscDoc           String?
+    hscDoc           String?
     createdAt        DateTime   @default(now())
     updatedAt        DateTime   @updatedAt
 

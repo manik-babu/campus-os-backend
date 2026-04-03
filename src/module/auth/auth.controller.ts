@@ -14,13 +14,17 @@ const registration = async (req: Request, res: Response, next: NextFunction) => 
         if (!req.file) {
             throw new Error("Profile image is required");
         }
+        console.log({
+            image: req.file,
+            data: req.body
+        })
         const { parsedUserData, parsedProfileData } = getParsedData(req.body);
         // Hash the password before saving to database
         const hashedPassword = await bcrypt.hash(parsedUserData.password, 10);
         parsedUserData.password = hashedPassword;
 
         // Upload the image to Cloudinary and get the URL
-        const uploadedImage: IUploadedImage = await uploadToCloudinary(req.file?.buffer, "CampusOS/Profiles");
+        const uploadedImage: IUploadedImage = await uploadToCloudinary(req.file?.buffer, `${env.CLOUDINARY_FOLDER}/profile_images`);
 
         const result = await authService.registration({ userData: parsedUserData, profileData: parsedProfileData, uploadedImage });
         sendResponse(res, {

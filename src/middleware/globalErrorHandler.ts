@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { env } from "../config/env";
 import status from "http-status";
 import * as z from "zod";
+import AppError from "../helper/AppError";
 
 interface IZodError {
     path: string,
@@ -24,15 +25,18 @@ const globalErrorHandler = (err: Error, req: Request, res: Response, next: NextF
             message: issue.message
         }));
 
+    } else if (err instanceof AppError) {
+        statusCode = err.statusCode;
+        message = err.message;
     } else if (err instanceof Error) {
         message = err.message;
-        statusCode = status.BAD_REQUEST;
+        statusCode = status.INTERNAL_SERVER_ERROR;
     }
     res.status(statusCode).json({
         ok: false,
         status: statusCode,
         message: message,
-        error: JSON.stringify(err),
+        error: err,
         zodErrors: zodErrors
     });
 };

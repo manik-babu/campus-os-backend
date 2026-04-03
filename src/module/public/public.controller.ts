@@ -4,6 +4,7 @@ import { publicService } from "./public.service";
 import { NextFunction, Request, Response } from "express";
 import { AdmissionFormZodSchema } from "./public.validation";
 import { uploadToCloudinary } from "../../config/cloudinary";
+import { env } from "../../config/env";
 
 
 const createAdmissionForm = async (req: Request, res: Response, next: NextFunction) => {
@@ -18,9 +19,9 @@ const createAdmissionForm = async (req: Request, res: Response, next: NextFuncti
             sscDoc: files?.sscDoc?.[0],
             hscDoc: files?.hscDoc?.[0],
         }
-        const uploadedImage = await uploadToCloudinary(images.image?.buffer, "admission_forms/images");
-        const uploadedSscDoc = await uploadToCloudinary(images.sscDoc?.buffer, "admission_forms/ssc_docs");
-        const uploadedHscDoc = await uploadToCloudinary(images.hscDoc?.buffer, "admission_forms/hsc_docs");
+        const uploadedImage = await uploadToCloudinary(images.image?.buffer, `${env.CLOUDINARY_FOLDER}/admission_forms/images`);
+        const uploadedSscDoc = await uploadToCloudinary(images.sscDoc?.buffer, `${env.CLOUDINARY_FOLDER}/admission_forms/ssc_docs`);
+        const uploadedHscDoc = await uploadToCloudinary(images.hscDoc?.buffer, `${env.CLOUDINARY_FOLDER}/admission_forms/hsc_docs`);
 
         const result = await publicService.createAdmissionForm(data, uploadedImage, uploadedSscDoc, uploadedHscDoc);
 

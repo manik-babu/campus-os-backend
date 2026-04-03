@@ -7,13 +7,9 @@ export type FacultyProfileWithoutId = Omit<FacultyProfile, 'id' | 'createdAt' | 
 export type FacultyProfileWithGraduations = FacultyProfileWithoutId & { graduations: GraduationsWithoutId };
 export type AdminProfileWithoutId = Omit<AdminProfile, 'id' | 'createdAt' | 'updatedAt' | 'userId'>;
 export interface IRegistration {
-    userData: Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'idNo' | 'registrationNo'>;
+    userData: Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'idNo' | 'registrationNo' | 'image'>;
     profileData: StudentProfileWithoutId | FacultyProfileWithGraduations | AdminProfileWithoutId;
     uploadedImage: IUploadedImage;
-}
-export interface IAdmissionForm {
-    userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>;
-    profileData: StudentProfileWithoutId;
 }
 
 export interface ILogin {
