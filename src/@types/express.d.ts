@@ -1,16 +1,9 @@
 import { Request } from "express";
+import { LoggedInUser } from "./loggedInUser";
 declare global {
     namespace Express {
         interface Request {
-            user?: {
-                id: string;
-                name: string;
-                role: string;
-                email: string;
-                idNo: string;
-                registrationNo: string;
-                status: string;
-            },
+            user?: LoggedInUser;
             files?: {
                 image?: Express.Multer.File[];
                 sscCertificate?: Express.Multer.File[];

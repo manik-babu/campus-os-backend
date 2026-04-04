@@ -1,7 +1,6 @@
 import * as z from "zod";
 
 export const createBatchZodSchema = z.object({
-    batchNo: z.number().nonnegative("Batch number must be a non-negative integer"),
     departmentId: z.string().min(1, "Department ID is required"),
     description: z.string().optional(),
 });
@@ -13,22 +12,34 @@ export const CourseZodSchema = z.object({
     credits: z.number().int().positive("Credits must be a positive integer"),
     departmentId: z.string().min(1, "Department ID is required"),
 })
-
+export const CourseOfferingZodSchema = z.object({
+    courseId: z.string().min(1, "Course ID is required"),
+    semesterId: z.string().min(1, "Semester ID is required"),
+    batchId: z.string().min(1, "Batch ID is required"),
+    facultyId: z.string().min(1, "Faculty ID is required"),
+    creditFees: z.number().positive("Credit fees must be a positive number"),
+    departmentId: z.string().min(1, "Department ID is required"),
+})
 /**
- model Course {
-    id           String     @id @default(uuid())
-    code         String     @unique
-    title        String
-    description  String?
-    credits      Int
+model CourseOffering {
+    id           String       @id @default(uuid())
+    courseId     String
+    course       Course       @relation(fields: [courseId], references: [id])
+    semesterId   String
+    semester     Semester     @relation(fields: [semesterId], references: [id])
+    batchId      String
+    batch        Batch        @relation(fields: [batchId], references: [id])
+    facultyId    String
+    faculty      User         @relation(fields: [facultyId], references: [id])
+    creditFees   Decimal      @db.Decimal(10, 2)
     departmentId String
-    department   Department @relation(fields: [departmentId], references: [id])
+    department   Department   @relation(fields: [departmentId], references: [id])
+    enrollments  Enrollment[]
+    createdAt    DateTime     @default(now())
+    updatedAt    DateTime     @updatedAt
 
-    courseOfferings CourseOffering[]
-    createdAt       DateTime         @default(now())
-    updatedAt       DateTime         @updatedAt
-
-    @@map("courses")
+    @@map("course_offerings")
 }
+
 
  */

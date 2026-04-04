@@ -5,6 +5,8 @@ import { NextFunction, Request, Response } from "express";
 import { AdmissionFormZodSchema } from "./public.validation";
 import { uploadToCloudinary } from "../../config/cloudinary";
 import { env } from "../../config/env";
+import catchAsync from "../../utils/catchAsync";
+import AppError from "../../helper/AppError";
 
 
 const createAdmissionForm = async (req: Request, res: Response, next: NextFunction) => {
@@ -35,7 +37,55 @@ const createAdmissionForm = async (req: Request, res: Response, next: NextFuncti
         next(error);
     }
 }
-
+const getPrograms = catchAsync(async (req: Request, res: Response) => {
+    const result = await publicService.getPrograms();
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Programs retrieved successfully",
+        data: result
+    })
+})
+const getDepartments = catchAsync(async (req: Request, res: Response) => {
+    const programId = req.query.programId;
+    if (!programId) {
+        throw new AppError(400, "You must provide a programId");
+    }
+    const result = await publicService.getDepartments(programId as string);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Departments retrieved successfully",
+        data: result
+    })
+})
+const getFaculty = catchAsync(async (req: Request, res: Response) => {
+    const departmentId = req.query.departmentId as string | "";
+    const result = await publicService.getFaculty(departmentId);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Faculty retrieved successfully",
+        data: result,
+    })
+})
+const getCourses = catchAsync(async (req: Request, res: Response) => {
+    const departmentId = req.query.departmentId as string;
+    if (!departmentId) {
+        throw new AppError(400, "You must provide a departmentId");
+    }
+    const result = await publicService.getCourses(departmentId);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Courses retrieved successfully",
+        data: result,
+    });
+});
 export const publicController = {
-    createAdmissionForm
+    createAdmissionForm,
+    getPrograms,
+    getDepartments,
+    getFaculty,
+    getCourses,
 }

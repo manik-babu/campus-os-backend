@@ -6,6 +6,7 @@ import { auth } from '../middleware/auth';
 import { UserRole } from '../../generated/prisma/client';
 import { publicRouter } from '../module/public/public.routes';
 import { paymentRouter } from '../module/payment/payment.routes';
+import { commonRouter } from '../module/common/common.routes';
 
 //? This file will be the main router that combines all the module-specific routers (auth, user, course, etc.)
 //? /api/v1/ -> apiRouter
@@ -16,4 +17,5 @@ apiRouter.use("/super-admin", auth(UserRole.SUPER_ADMIN), superAdminRouter);
 apiRouter.use("/admin", auth(UserRole.ADMIN), adminRouter);
 apiRouter.use("/public", publicRouter);
 apiRouter.use("/payment", paymentRouter);
+apiRouter.use("/common", commonRouter);
 export default apiRouter;

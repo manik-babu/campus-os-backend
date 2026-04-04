@@ -1,10 +1,17 @@
 import { Router } from "express";
 import { adminController } from "./admin.controller";
 import validateRequest from "../../middleware/validateRequest";
-import { CourseZodSchema, createBatchZodSchema } from "./admin.validation";
+import { CourseOfferingZodSchema, CourseZodSchema, createBatchZodSchema } from "./admin.validation";
+
+
 //? This file will contain all the routes related to admin (create student, create faculty, etc.)
 //? /admin -> adminRouter
 const router = Router();
 router.post("/create-batch", validateRequest(createBatchZodSchema), adminController.createBatch);
 router.post("/create-course", validateRequest(CourseZodSchema), adminController.createCourse);
+router.post("/create-course-offering", validateRequest(CourseOfferingZodSchema), adminController.createCourseOffering);
+router.get("/batches", adminController.getBatches);
+router.get("/admission-forms", adminController.getAdmissionForms);
+
+
 export const adminRouter = router;

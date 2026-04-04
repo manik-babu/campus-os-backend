@@ -1,3 +1,4 @@
+import { UserRole } from "../../../generated/prisma/client";
 import cloudinary from "../../config/cloudinary";
 import AppError from "../../helper/AppError";
 import { prisma } from "../../lib/prisma";
@@ -46,7 +47,59 @@ const createAdmissionForm = async (data: TAdmissionForm, uploadedImage: IUploade
         throw error;
     }
 }
+const getPrograms = async () => {
+    const programs = await prisma.program.findMany({
+        select: {
+            id: true,
+            name: true,
+            shortName: true,
+            level: true,
+            description: true
+        }
+    });
+    return programs;
+}
+const getDepartments = async (programId: string) => {
+    const departments = await prisma.department.findMany({
+        where: {
+            programId: programId
+        },
+        select: {
+            id: true,
+            name: true,
+            shortName: true,
+            description: true
+        }
+    });
+    return departments;
+}
+const getFaculty = async (departmentId: string) => {
+    const faculty = await prisma.user.findMany({
+        where: {
+            role: UserRole.FACULTY,
+            facultyProfile: {
+                departmentId: departmentId
+            }
+        },
+        include: {
+            facultyProfile: true
+        }
+    });
+    return faculty;
+}
+const getCourses = async (departmentId: string) => {
+    const courses = await prisma.course.findMany({
+        where: {
+            departmentId: departmentId
+        }
+    });
+    return courses;
 
+}
 export const publicService = {
-    createAdmissionForm
+    createAdmissionForm,
+    getPrograms,
+    getDepartments,
+    getFaculty,
+    getCourses,
 }   

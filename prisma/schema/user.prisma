@@ -12,7 +12,7 @@ model User {
     studentProfile  StudentProfile?
     facultyProfile  FacultyProfile?
     courseOfferings CourseOffering[]
-    adminProfiles   AdminProfile?
+    adminProfile    AdminProfile?
     enrollments     Enrollment[]
     bills           Bill[]
     createdAt       DateTime         @default(now())

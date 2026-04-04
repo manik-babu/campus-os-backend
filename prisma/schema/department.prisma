@@ -13,6 +13,7 @@ model Department {
     adminProfiles   AdminProfile[]
     createdAt       DateTime         @default(now())
     updatedAt       DateTime         @updatedAt
+    courseOfferings CourseOffering[]
 
     @@map("departments")
 }

@@ -4,8 +4,8 @@ model Bill {
     student    User       @relation(fields: [studentId], references: [id])
     semesterId String
     semester   Semester   @relation(fields: [semesterId], references: [id])
-    totalPaid  Float
     billItems  BillItem[]
+    payments   Payment[]
     createdAt  DateTime   @default(now())
     updatedAt  DateTime   @updatedAt
 
