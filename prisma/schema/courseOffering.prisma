@@ -15,5 +15,6 @@ model CourseOffering {
     createdAt    DateTime     @default(now())
     updatedAt    DateTime     @updatedAt
 
+    @@unique([courseId, semesterId, batchId], name: "unique_course_offering")
     @@map("course_offerings")
 }

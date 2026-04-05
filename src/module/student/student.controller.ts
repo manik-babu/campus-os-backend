@@ -1,0 +1,60 @@
+import { Request, Response } from "express";
+import { LoggedInUser } from "../../@types/loggedInUser";
+import catchAsync from "../../utils/catchAsync";
+import { studentService } from "./student.service";
+import status from "http-status";
+import sendResponse from "../../utils/sendResponse";
+import AppError from "../../helper/AppError";
+
+
+const enrollSingleCourse = catchAsync(async (req: Request, res: Response,) => {
+    const result = await studentService.enrollSingleCourse(req.body.courseOfferingId, req.user as LoggedInUser);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Enrolled in the course successfully",
+        data: result,
+    });
+});
+const studentBill = catchAsync(async (req: Request, res: Response,) => {
+    const semesterId = req.query.semesterId;
+    if (!semesterId) {
+        throw new AppError(status.BAD_REQUEST, "Semester ID is required");
+    }
+    const result = await studentService.studentBill(req.user?.id as string, semesterId as string);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Student bill retrieved successfully",
+        data: result,
+    });
+});
+const dropEnrollment = catchAsync(async (req: Request, res: Response,) => {
+    const result = await studentService.dropEnrollment(req.body.enrollmentId, req.user as LoggedInUser);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Dropped the course successfully",
+        data: result,
+    });
+});
+const getEnrolledCourses = catchAsync(async (req: Request, res: Response,) => {
+    const semesterId = req.query.semesterId;
+    if (!semesterId) {
+        throw new AppError(status.BAD_REQUEST, "Semester ID is required");
+    }
+    const enrollments = await studentService.getEnrolledCourses(req.user?.id as string, semesterId as string);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Enrolled courses retrieved successfully",
+        data: enrollments,
+    });
+});
+
+export const studentController = {
+    enrollSingleCourse,
+    studentBill,
+    dropEnrollment,
+    getEnrolledCourses,
+};

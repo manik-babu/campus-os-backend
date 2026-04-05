@@ -14,7 +14,17 @@ const getSemesters = catchAsync(async (req: Request, res: Response) => {
         data: result,
     });
 });
+const getCourseOfferings = catchAsync(async (req: Request, res: Response) => {
+    const result = await commonService.getCourseOfferings(req.query);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Course offerings retrieved successfully",
+        data: result,
+    });
+});
 
 export const commonController = {
     getSemesters,
+    getCourseOfferings,
 };

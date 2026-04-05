@@ -102,12 +102,24 @@ const enrollBatchStudents = async (payload: IEnrollBatchStudentsPayload) => {
                     };
                 }
                 const enrollment = await prisma.$transaction(async (tx) => {
-                    const bill = await tx.bill.create({
-                        data: {
+                    let bill;
+                    const existingBill = await tx.bill.findFirst({
+                        where: {
                             studentId: student.id,
                             semesterId: payload.semesterId,
-                        },
+                        }
                     });
+                    if (existingBill) {
+                        bill = existingBill;
+                    }
+                    else {
+                        bill = await tx.bill.create({
+                            data: {
+                                studentId: student.id,
+                                semesterId: payload.semesterId,
+                            },
+                        });
+                    }
                     const enroll = await tx.enrollment.create({
                         data: {
                             studentId: student.id,

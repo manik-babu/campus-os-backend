@@ -8,4 +8,5 @@ import { UserRole } from "../../../generated/prisma/enums";
 const router = Router();
 
 router.get("/semesters", auth(UserRole.SUPER_ADMIN, UserRole.ADMIN), commonController.getSemesters);
+router.get("/course-offerings", auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.STUDENT, UserRole.FACULTY), commonController.getCourseOfferings);
 export const commonRouter = router;
