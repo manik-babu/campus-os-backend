@@ -49,6 +49,16 @@ const createCourseOffering = catchAsync(async (req: Request, res: Response) => {
         data: result,
     })
 });
+const enrollBatchStudents = catchAsync(async (req: Request, res: Response) => {
+    const result = await adminService.enrollBatchStudents(req.body);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Students enrolled successfully",
+        data: result,
+    })
+});
+
 const getAdmissionForms = catchAsync(async (req: Request, res: Response) => {
     const admin = req.user as LoggedInUser;
     const result = await adminService.getAdmissionForms(admin);
@@ -65,4 +75,5 @@ export const adminController = {
     getBatches,
     createCourseOffering,
     getAdmissionForms,
+    enrollBatchStudents,
 };

@@ -12,6 +12,6 @@ router.post("/create-course", validateRequest(CourseZodSchema), adminController.
 router.post("/create-course-offering", validateRequest(CourseOfferingZodSchema), adminController.createCourseOffering);
 router.get("/batches", adminController.getBatches);
 router.get("/admission-forms", adminController.getAdmissionForms);
-
+router.post("/enroll-batch-students", adminController.enrollBatchStudents);
 
 export const adminRouter = router;

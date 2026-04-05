@@ -20,26 +20,17 @@ export const CourseOfferingZodSchema = z.object({
     creditFees: z.number().positive("Credit fees must be a positive number"),
     departmentId: z.string().min(1, "Department ID is required"),
 })
+export const EnrollBatchStudentsZodSchema = z.object({
+    id: z.string().min(1, "Course offering ID is required"),
+    course: z.object({
+        credits: z.number().int().positive("Course credits must be a positive integer"),
+    }),
+    creditFees: z.number().positive("Credit fees must be a positive number"),
+    batchId: z.string().min(1, "Batch ID is required"),
+    semesterId: z.string().min(1, "Semester ID is required"),
+    departmentId: z.string().min(1, "Department ID is required")
+});
 /**
-model CourseOffering {
-    id           String       @id @default(uuid())
-    courseId     String
-    course       Course       @relation(fields: [courseId], references: [id])
-    semesterId   String
-    semester     Semester     @relation(fields: [semesterId], references: [id])
-    batchId      String
-    batch        Batch        @relation(fields: [batchId], references: [id])
-    facultyId    String
-    faculty      User         @relation(fields: [facultyId], references: [id])
-    creditFees   Decimal      @db.Decimal(10, 2)
-    departmentId String
-    department   Department   @relation(fields: [departmentId], references: [id])
-    enrollments  Enrollment[]
-    createdAt    DateTime     @default(now())
-    updatedAt    DateTime     @updatedAt
-
-    @@map("course_offerings")
-}
 
 
  */

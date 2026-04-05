@@ -1,7 +1,8 @@
-import { Batch, Course, CourseOffering, UserRole } from "../../../generated/prisma/client";
+import { Course, CourseOffering } from "../../../generated/prisma/client";
 import { LoggedInUser } from "../../@types/loggedInUser";
 import AppError from "../../helper/AppError";
 import { prisma } from "../../lib/prisma";
+import { EnrolledStudent, IEnrollBatchStudentsPayload, IStudent } from "./admin.interface";
 
 const createBatch = async (admin: LoggedInUser, data: { departmentId: string; description?: string }) => {
     const adminInfo = await prisma.user.findUnique({
@@ -51,9 +52,111 @@ const createCourse = async (payload: Omit<Course, "id" | "createdAt" | "updatedA
 const createCourseOffering = async (payload: Omit<CourseOffering, "id" | "createdAt" | "updatedAt">) => {
     const courseOffering = await prisma.courseOffering.create({
         data: payload,
+        select: {
+            id: true,
+            course: {
+                select: {
+                    credits: true,
+                    title: true,
+                }
+            },
+            creditFees: true,
+            batchId: true,
+            semesterId: true,
+            departmentId: true,
+        }
     });
     return courseOffering;
 }
+const enrollBatchStudents = async (payload: IEnrollBatchStudentsPayload) => {
+    const students = await prisma.user.findMany({
+        where: {
+            role: "STUDENT",
+            studentProfile: {
+                batchId: payload.batchId,
+                departmentId: payload.departmentId
+            }
+        },
+        select: {
+            id: true,
+            idNo: true,
+            name: true,
+        }
+    });
+    let enrollStudentData: EnrolledStudent[] = await Promise.all(
+        students.map(async (student: IStudent) => {
+            try {
+                const existingEnrollment = await prisma.enrollment.findUnique({
+                    where: {
+                        studentId_courseOfferingId: {
+                            studentId: student.id,
+                            courseOfferingId: payload.id,
+                        }
+                    }
+                });
+                if (existingEnrollment) {
+                    return {
+                        idNo: student.idNo,
+                        name: student.name,
+                        enrolled: true,
+                    };
+                }
+                const enrollment = await prisma.$transaction(async (tx) => {
+                    const bill = await tx.bill.create({
+                        data: {
+                            studentId: student.id,
+                            semesterId: payload.semesterId,
+                        },
+                    });
+                    const enroll = await tx.enrollment.create({
+                        data: {
+                            studentId: student.id,
+                            courseOfferingId: payload.id,
+                            result: {
+                                create: {},
+                            },
+                        },
+                    });
+                    await tx.billItem.create({
+                        data: {
+                            name: `Tuition fee for ${payload.course.title}`,
+                            enrollmentId: enroll.id,
+                            totalAmount: parseFloat(payload.creditFees) * payload.course.credits,
+                            billId: bill.id,
+                        }
+                    });
+                    return enroll;
+                });
+                if (enrollment) {
+                    return {
+                        idNo: student.idNo,
+                        name: student.name,
+                        enrolled: true,
+                    }
+                } else {
+                    return {
+                        idNo: student.idNo,
+                        name: student.name,
+                        enrolled: false,
+                    };
+                }
+            } catch (error) {
+                return {
+                    idNo: student.idNo,
+                    name: student.name,
+                    enrolled: false,
+                };
+            }
+        })
+    ).catch((error) => {
+        return students.map((student: IStudent) => ({
+            idNo: student.idNo,
+            name: student.name,
+            enrolled: false,
+        }));
+    });
+    return enrollStudentData;
+};
 const getAdmissionForms = async (admin: LoggedInUser) => {
     const adminInfo = await prisma.user.findUnique({
         where: {
@@ -79,4 +182,5 @@ export const adminService = {
     getBatches,
     createCourseOffering,
     getAdmissionForms,
+    enrollBatchStudents,
 };

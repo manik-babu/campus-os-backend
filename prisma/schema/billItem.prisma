@@ -2,10 +2,10 @@ model BillItem {
     id           String     @id @default(uuid())
     name         String
     enrollmentId String     @unique
-    enrollment   Enrollment @relation(fields: [enrollmentId], references: [id])
-    totalAmount  Float
+    enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+    totalAmount  Decimal    @db.Decimal(10, 2)
     billId       String
-    bill         Bill       @relation(fields: [billId], references: [id])
+    bill         Bill       @relation(fields: [billId], references: [id], onDelete: Cascade)
     createdAt    DateTime   @default(now())
     updatedAt    DateTime   @updatedAt
 

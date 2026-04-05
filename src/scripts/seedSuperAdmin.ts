@@ -1,26 +1,23 @@
 import { UserGender, UserRole } from "../../generated/prisma/enums"
 import { env } from "../config/env";
+import { prisma } from "../lib/prisma";
+import bcrypt from "bcryptjs";
 
 const seed = async () => {
     try {
+        const hashedPassword = await bcrypt.hash("manik1234", 10);
         const data = {
+            idNo: "100000",
+            registrationNo: "REG100000",
             name: "Super Admin",
             role: UserRole.SUPER_ADMIN,
             email: "superadmin@gmail.com",
-            password: "manik1234",
+            password: hashedPassword,
             gender: UserGender.MALE
         }
-        const response = await fetch(`${env.BACKEND_URL}/api/v1/auth/register`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Origin: env.FRONTEND_URL
-            },
-            body: JSON.stringify({
-                userData: data
-            })
+        const result = await prisma.user.create({
+            data: data,
         });
-        const result = await response.json();
         console.log("Super admin creation successful!")
         console.log({
             creationResponse: result
