@@ -1,5 +1,7 @@
 model CoursePost {
     id                 String         @id @default(uuid())
+    authorId           String
+    author             User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
     courseOfferingId   String
     courseOffering     CourseOffering @relation(fields: [courseOfferingId], references: [id], onDelete: Cascade)
     message            String?

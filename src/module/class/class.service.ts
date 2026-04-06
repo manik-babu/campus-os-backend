@@ -41,6 +41,14 @@ const getCoursePosts = async (classId: string, search: IGetCoursePosts) => {
                 select: {
                     comments: true,
                 }
+            },
+            author: {
+                select: {
+                    id: true,
+                    name: true,
+                    idNo: true,
+                    role: true
+                }
             }
         },
         orderBy: {

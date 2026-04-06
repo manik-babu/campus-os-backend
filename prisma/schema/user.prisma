@@ -17,6 +17,7 @@ model User {
     bills           Bill[]
     createdAt       DateTime         @default(now())
     updatedAt       DateTime         @updatedAt
+    coursePosts     CoursePost[]
 
     @@map("users")
 }

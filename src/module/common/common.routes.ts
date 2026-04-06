@@ -9,4 +9,6 @@ const router = Router();
 
 router.get("/semesters", auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.FACULTY, UserRole.STUDENT), commonController.getSemesters);
 router.get("/course-offerings", auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.STUDENT, UserRole.FACULTY), commonController.getCourseOfferings);
+router.get("/user-details", auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.STUDENT, UserRole.FACULTY), commonController.getUserDetails);
+router.get("/admit", commonController.getAdmit);
 export const commonRouter = router;

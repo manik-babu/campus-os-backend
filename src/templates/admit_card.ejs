@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admit Card – <%= student.name %></title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2rem;
+      color: #111;
+    }
+
+    .card {
+      width: 740px;
+      background: #fff;
+      border: 1px solid #d0d0d0;
+    }
+
+    .header {
+      border-bottom: 3px solid #111;
+      padding: 20px 28px 16px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .logo {
+      width: 52px; height: 52px;
+      border: 2px solid #111;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .header-text { flex: 1; }
+
+    .univ-name { font-size: 1.2rem; font-weight: 600; }
+    .univ-sub  { font-size: .75rem; color: #666; margin-top: 2px; }
+
+    .exam-tag {
+      font-size: .7rem; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase;
+      border: 1.5px solid #111; padding: 4px 12px;
+    }
+
+    .card-title {
+      background: #111; color: #fff;
+      text-align: center; padding: 8px;
+      font-size: .72rem; font-weight: 500;
+      letter-spacing: .2em; text-transform: uppercase;
+    }
+
+    .body {
+      display: grid;
+      grid-template-columns: 1fr 160px;
+    }
+
+    .info {
+      padding: 24px 28px;
+      border-right: 1px solid #d0d0d0;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 28px;
+    }
+
+    .field.span { grid-column: 1 / -1; }
+
+    .label {
+      font-size: .65rem; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: #888; margin-bottom: 3px;
+    }
+
+    .value {
+      font-size: .88rem; font-weight: 500; color: #111;
+      padding-bottom: 6px; border-bottom: 1px solid #e0e0e0;
+    }
+
+    .photo-col {
+      padding: 24px 18px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 12px;
+      background: #fafafa;
+    }
+
+    .photo-box {
+      width: 110px; height: 130px;
+      border: 1.5px solid #bbb;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .62rem; letter-spacing: .1em;
+      text-transform: uppercase; color: #aaa;
+    }
+
+    .sig { width: 100%; margin-top: auto; }
+    .sig + .sig { margin-top: 12px; }
+    .sig-line { border-top: 1px solid #aaa; margin-bottom: 4px; }
+    .sig-label { font-size: .6rem; text-align: center; color: #888; letter-spacing: .06em; text-transform: uppercase; }
+
+    .courses { padding: 0 28px 22px; }
+
+    .section-label {
+      font-size: .65rem; font-weight: 600;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: #888; padding: 14px 0 8px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+
+    thead th {
+      background: #f5f5f5; padding: 7px 10px; text-align: left;
+      font-size: .65rem; font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: #555; border: 1px solid #e0e0e0;
+    }
+
+    tbody td { padding: 8px 10px; border: 1px solid #e0e0e0; color: #111; }
+
+    .footer {
+      border-top: 1px solid #d0d0d0;
+      padding: 10px 28px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: .68rem; color: #888; background: #fafafa;
+    }
+
+    @media print { body { background: none; padding: 0; } }
+  </style>
+</head>
+<body>
+<div class="card">
+
+  <div class="header">
+    <div class="logo">UU</div>
+    <div class="header-text">
+      <div class="univ-name">Uttara University</div>
+      <div class="univ-sub">Dhaka, Bangladesh</div>
+    </div>
+    <div class="exam-tag"><%= student.exam %> Examination</div>
+  </div>
+
+  <div class="card-title">Admit Card &nbsp;·&nbsp; <%= student.semester %></div>
+
+  <div class="body">
+    <div class="info">
+      <div class="row">
+
+        <div class="field span">
+          <div class="label">Student Name</div>
+          <div class="value"><%= student.name %></div>
+        </div>
+
+        <div class="field">
+          <div class="label">ID No.</div>
+          <div class="value"><%= student.idNo %></div>
+        </div>
+
+        <div class="field">
+          <div class="label">Registration No.</div>
+          <div class="value"><%= student.registrationNo %></div>
+        </div>
+
+        <div class="field span">
+          <div class="label">Department</div>
+          <div class="value"><%= student.department %></div>
+        </div>
+
+        <div class="field">
+          <div class="label">Program</div>
+          <div class="value"><%= student.program %></div>
+        </div>
+
+        <div class="field">
+          <div class="label">Batch</div>
+          <div class="value"><%= student.batch %></div>
+        </div>
+
+        <div class="field">
+          <div class="label">Semester</div>
+          <div class="value"><%= student.semester %></div>
+        </div>
+
+        <div class="field">
+          <div class="label">Exam Date</div>
+          <div class="value"><%= student.date %></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="photo-col">
+      <div class="photo-box">Photo</div>
+      <div class="sig">
+        <div class="sig-line"></div>
+        <div class="sig-label">Student Signature</div>
+      </div>
+      <div class="sig">
+        <div class="sig-line"></div>
+        <div class="sig-label">Controller of Exams</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="courses">
+    <div class="section-label">Enrolled Courses</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:36px">#</th>
+          <th style="width:150px">Course Code</th>
+          <th>Course Title</th>
+          <th style="width:70px;text-align:center">Credits</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% student.courses.forEach(function(course, i) { %>
+        <tr>
+          <td><%= i + 1 %></td>
+          <td><%= course.code %></td>
+          <td><%= course.title %></td>
+          <td style="text-align:center"><%= course.credits %></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <span>Valid for <strong><%= student.exam %></strong> – <strong><%= student.semester %></strong> only. Carry a valid photo ID.</span>
+    <span>Issued: <%= student.date %></span>
+  </div>
+
+</div>
+</body>
+</html>

@@ -3,6 +3,8 @@ import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { commonService } from "./common.service";
 import { Request, Response } from "express";
+import AppError from "../../helper/AppError";
+import { IStudentAdmitCardData } from "./common.interface";
 
 
 const getSemesters = catchAsync(async (req: Request, res: Response) => {
@@ -23,8 +25,47 @@ const getCourseOfferings = catchAsync(async (req: Request, res: Response) => {
         data: result,
     });
 });
+const getUserDetails = catchAsync(async (req: Request, res: Response) => {
+    let userId: string | null = req.query.userId as string || null;
+    let role: string | null = req.query.role as string || null;
+    if (!userId || !role) {
+        userId = req.user?.id as string;
+        role = req.user?.role as string;
+    }
+    const result = await commonService.getUserDetails(userId, role as any);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "User details retrieved successfully",
+        data: result,
+    });
+});
+const getAdmit = catchAsync(async (req: Request, res: Response,) => {
+    const studentId = req.query.studentId;
+    const semesterId = req.query.semesterId;
+    const exam = req.query.exam as "Midterm" | "Final";
+    if (!studentId || !semesterId || !exam) {
+        throw new AppError(status.BAD_REQUEST, "Student ID, Semester ID and Exam type are required");
+    }
+    const details = await commonService.getAdmit(studentId as string, semesterId as string, exam);
+    const admitCard = await commonService.generateAdmitCard(details as IStudentAdmitCardData);
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename=${details.idNo}_${exam}_Admit_Card.pdf`);
+    res.send(admitCard);
+    // sendResponse(res, {
+    //     statusCode: status.OK,
+    //     ok: true,
+    //     message: "Admit card generated successfully",
+    //     data: {
+    //         details,
+    //     },
+    // });
+});
 
 export const commonController = {
     getSemesters,
     getCourseOfferings,
+    getUserDetails,
+    getAdmit,
 };

@@ -228,7 +228,6 @@ const getResult = async (studentId: string, semesterId: string) => {
         }
     }));
 }
-
 export const studentService = {
     enrollSingleCourse,
     studentBill,

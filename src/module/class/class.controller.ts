@@ -12,7 +12,12 @@ import { CoursePostInput } from "./class.interface";
 import { MaterialType } from "../../../generated/prisma/enums";
 
 const addCoursePost = catchAsync(async (req: Request, res: Response,) => {
-    const data = zodParse(coursePostZodSchema, JSON.parse(req.body.data));
+    const data = JSON.parse(req.body.data);
+    const user = req.user;
+    if (user?.role !== "FACULTY" && data.type !== MaterialType.COMMENT) {
+        throw new AppError(status.FORBIDDEN, "Only faculty members can create course posts");
+    }
+    const parsedData = zodParse(coursePostZodSchema, data);
     const file = req.file;
     let attachment: string | null = null;
     if (file) {
@@ -22,7 +27,7 @@ const addCoursePost = catchAsync(async (req: Request, res: Response,) => {
             resource_type: "raw"
         }).then(result => result.secure_url);
     }
-    const result = await classService.addCoursePost(data as CoursePostInput, attachment);
+    const result = await classService.addCoursePost({ ...parsedData, authorId: user?.id } as CoursePostInput, attachment);
 
     sendResponse(res, {
         statusCode: status.CREATED,

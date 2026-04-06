@@ -33,5 +33,5 @@ export const coursePostZodSchema = z.object({
     parentId: z.string().nullable(),
     assignmentDeadLine: z.string().refine((date) => !isNaN(Date.parse(date)), {
         message: "Invalid date format"
-    }).nullable() // ISO date string
+    }).nullable(), // ISO date string
 });
