@@ -65,7 +65,9 @@ export const studentProfileZodSchema = z.object({
     departmentId: z.string(),
     fatherName: z.string(),
     motherName: z.string(),
-    birthDate: z.string(), // You can further validate this as a date string if needed
+    birthDate: z.string().refine(date => !isNaN(Date.parse(date)), {
+        message: "Invalid date format. Expected a valid date string.",
+    }), // You can further validate this as a date string if needed
     permanentAddress: z.string(),
     presentAddress: z.string(),
     phoneNumber: z.string(),

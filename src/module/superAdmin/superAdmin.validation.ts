@@ -15,8 +15,12 @@ export const departmentZodSchema = z.object({
 
 export const semesterZodSchema = z.object({
     name: z.string("Semester name is required"),
-    classStart: z.string("Class start date is required"),
-    classEnd: z.string("Class end date is required"),
+    classStart: z.string("Class start date is required").refine(date => !isNaN(Date.parse(date)), {
+        message: "Invalid date format. Expected a valid date string.",
+    }),
+    classEnd: z.string("Class end date is required").refine(date => !isNaN(Date.parse(date)), {
+        message: "Invalid date format. Expected a valid date string.",
+    }),
     description: z.string().optional(),
 });
 

@@ -5,7 +5,7 @@ import { CourseOfferingZodSchema, CourseZodSchema, createBatchZodSchema } from "
 
 
 //? This file will contain all the routes related to admin (create student, create faculty, etc.)
-//? /admin -> adminRouter
+//? /api/v1/admin -> adminRouter
 const router = Router();
 router.post("/create-batch", validateRequest(createBatchZodSchema), adminController.createBatch);
 router.post("/create-course", validateRequest(CourseZodSchema), adminController.createCourse);

@@ -36,7 +36,9 @@ export const AdmissionFormZodSchema = z.object({
     email: z.email(),
     fatherName: z.string(),
     motherName: z.string(),
-    birthDate: z.string(), // We will parse this to Date in the service layer
+    birthDate: z.string().refine(date => !isNaN(Date.parse(date)), {
+        message: "Invalid date format. Expected a valid date string.",
+    }), // We will parse this to Date in the service layer
     permanentAddress: z.string(),
     presentAddress: z.string(),
     phoneNumber: z.string(),

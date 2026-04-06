@@ -9,8 +9,10 @@ model Enrollment {
     billItems        BillItem?
     createdAt        DateTime         @default(now())
     updatedAt        DateTime         @updatedAt
+    attendances      Attendance[]
 
     @@unique([studentId, courseOfferingId])
+    @@index([studentId])
     @@map("enrollments")
 }
 

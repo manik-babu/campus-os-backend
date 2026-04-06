@@ -184,10 +184,55 @@ const getEnrolledCourses = async (studentId: string, semesterId: string) => {
         facultyName: enrollment.courseOffering.faculty.name,
     }));
 }
+const getResult = async (studentId: string, semesterId: string) => {
+    const results = await prisma.enrollment.findMany({
+        where: {
+            studentId,
+            courseOffering: {
+                semesterId,
+            }
+        },
+        include: {
+            courseOffering: {
+                include: {
+                    course: {
+                        select: {
+                            code: true,
+                            title: true,
+                            credits: true,
+                        }
+                    },
+                    faculty: {
+                        select: {
+                            name: true,
+                        }
+                    }
+                }
+            },
+            result: true,
+        }
+    });
+    return results.map(result => ({
+        courseCode: result.courseOffering.course.code,
+        courseTitle: result.courseOffering.course.title,
+        credits: result.courseOffering.course.credits,
+        facultyName: result.courseOffering.faculty.name,
+        result: {
+            classTest1: result.result?.classTest1,
+            classTest2: result.result?.classTest2,
+            midterm: result.result?.midterm,
+            final: result.result?.final,
+            attendance: result.result?.attendance,
+            grade: result.result?.grade,
+            points: result.result?.points,
+        }
+    }));
+}
 
 export const studentService = {
     enrollSingleCourse,
     studentBill,
     dropEnrollment,
     getEnrolledCourses,
+    getResult,
 };

@@ -51,10 +51,25 @@ const getEnrolledCourses = catchAsync(async (req: Request, res: Response,) => {
         data: enrollments,
     });
 });
+const getResult = catchAsync(async (req: Request, res: Response,) => {
+    const semesterId = req.query.semesterId;
+    if (!semesterId) {
+        throw new AppError(status.BAD_REQUEST, "Semester ID is required");
+    }
+    const results = await studentService.getResult(req.user?.id as string, semesterId as string);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Results retrieved successfully",
+        data: results,
+    });
+});
+
 
 export const studentController = {
     enrollSingleCourse,
     studentBill,
     dropEnrollment,
     getEnrolledCourses,
+    getResult,
 };
