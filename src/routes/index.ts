@@ -9,6 +9,7 @@ import { paymentRouter } from '../module/payment/payment.routes';
 import { commonRouter } from '../module/common/common.routes';
 import { studentRouter } from '../module/student/student.routes';
 import { facultyRouter } from '../module/faculty/faculty.routes';
+import { classRouter } from '../module/class/class.routes';
 
 //? This file will be the main router that combines all the module-specific routers (auth, user, course, etc.)
 //? /api/v1/ -> apiRouter
@@ -22,4 +23,5 @@ apiRouter.use("/payment", paymentRouter);
 apiRouter.use("/common", commonRouter);
 apiRouter.use("/students", auth(UserRole.STUDENT), studentRouter);
 apiRouter.use("/faculty", auth(UserRole.FACULTY), facultyRouter);
+apiRouter.use("/class", auth(UserRole.FACULTY, UserRole.STUDENT), classRouter);
 export default apiRouter;

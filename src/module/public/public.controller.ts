@@ -21,9 +21,21 @@ const createAdmissionForm = async (req: Request, res: Response, next: NextFuncti
             sscDoc: files?.sscDoc?.[0],
             hscDoc: files?.hscDoc?.[0],
         }
-        const uploadedImage = await uploadToCloudinary(images.image?.buffer, `${env.CLOUDINARY_FOLDER}/admission_forms/images`);
-        const uploadedSscDoc = await uploadToCloudinary(images.sscDoc?.buffer, `${env.CLOUDINARY_FOLDER}/admission_forms/ssc_docs`);
-        const uploadedHscDoc = await uploadToCloudinary(images.hscDoc?.buffer, `${env.CLOUDINARY_FOLDER}/admission_forms/hsc_docs`);
+        const uploadedImage = await uploadToCloudinary({
+            file: images.image as Express.Multer.File,
+            folder: `${env.CLOUDINARY_FOLDER}/admission_forms/profile_images`,
+            resource_type: "image"
+        });
+        const uploadedSscDoc = await uploadToCloudinary({
+            file: images.sscDoc as Express.Multer.File,
+            folder: `${env.CLOUDINARY_FOLDER}/admission_forms/ssc_docs`,
+            resource_type: "image"
+        });
+        const uploadedHscDoc = await uploadToCloudinary({
+            file: images.hscDoc as Express.Multer.File,
+            folder: `${env.CLOUDINARY_FOLDER}/admission_forms/hsc_docs`,
+            resource_type: "image"
+        });
 
         const result = await publicService.createAdmissionForm(data, uploadedImage, uploadedSscDoc, uploadedHscDoc);
 
