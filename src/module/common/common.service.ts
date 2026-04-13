@@ -6,19 +6,129 @@ import fs from "fs";
 import path from "path";
 import ejs from "ejs";
 const getSemesters = async () => {
-    const semesters = await prisma.semester.findMany();
+    const semesters = await prisma.semester.findMany({
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
     return semesters;
+}
+const getBatches = async (departmentId: string) => {
+    const batches = await prisma.batch.findMany({
+        where: {
+            departmentId: departmentId
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+        select: {
+            id: true,
+            batchNo: true,
+        }
+    });
+    return batches;
 }
 const getCourseOfferings = async (payload: IGetCourseOfferings) => {
     const courseOfferings = await prisma.courseOffering.findMany({
         where: {
-            ...(payload.facultyId && { facultyId: payload.facultyId }),
-            ...(payload.semesterId && { semesterId: payload.semesterId }),
-            ...(payload.courseId && { courseId: payload.courseId }),
-            ...(payload.batchId && { batchId: payload.batchId }),
+            ...(payload.batchId !== "all" && { batchId: payload.batchId }),
+            OR: [
+                {
+                    course: {
+                        title: {
+                            contains: payload.search || "",
+                            mode: "insensitive"
+                        }
+                    }
+                },
+                {
+                    course: {
+                        code: {
+                            contains: payload.search || "",
+                            mode: "insensitive"
+                        }
+                    }
+                },
+                {
+                    faculty: {
+                        name: {
+                            contains: payload.search || "",
+                            mode: "insensitive"
+                        }
+                    }
+                }
+            ]
+        },
+        take: 10,
+        skip: payload.page ? (parseInt(payload.page) - 1) * 10 : 0,
+        select: {
+            id: true,
+            creditFees: true,
+            course: {
+                select: {
+                    code: true,
+                    title: true,
+                    credits: true,
+                }
+            },
+            semester: {
+                select: {
+                    name: true,
+                }
+            },
+            faculty: {
+                select: {
+                    name: true,
+                    image: true,
+                }
+            },
+            batch: {
+                select: {
+                    batchNo: true,
+                }
+            }
         }
     });
-    return courseOfferings;
+    const totalCount = await prisma.courseOffering.count({
+        where: {
+            ...(payload.batchId !== "all" && { batchId: payload.batchId }),
+            OR: [
+                {
+                    course: {
+                        title: {
+                            contains: payload.search || "",
+                            mode: "insensitive"
+                        }
+                    }
+                },
+                {
+                    course: {
+                        code: {
+                            contains: payload.search || "",
+                            mode: "insensitive"
+                        }
+                    }
+                },
+                {
+                    faculty: {
+                        name: {
+                            contains: payload.search || "",
+                            mode: "insensitive"
+                        }
+                    }
+                }
+            ]
+        }
+    });
+    return {
+        courses: courseOfferings,
+        meta: {
+            total: totalCount,
+            page: payload.page ? parseInt(payload.page) : 1,
+            perPage: 10,
+            totalPages: Math.ceil(totalCount / 10)
+        }
+    };
 }
 const getUserDetails = async (userId: string, role: UserRole) => {
     const user = await prisma.user.findUnique({
@@ -188,4 +298,5 @@ export const commonService = {
     getUserDetails,
     getAdmit,
     generateAdmitCard,
+    getBatches,
 };

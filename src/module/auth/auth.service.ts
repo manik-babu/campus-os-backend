@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { AdminProfileWithoutId, FacultyProfileWithGraduations, FacultyProfileWithoutId, ILogin, IRegistration, StudentProfileWithoutId } from "./user.interface"
 import cloudinary from "../../config/cloudinary";
 import AppError from "../../helper/AppError";
+import status from "http-status";
 const registration = async ({ userData, profileData, uploadedImage }: IRegistration) => {
     if (profileData.departmentId) {
         const department = await prisma.department.count({
@@ -119,14 +120,31 @@ const login = async (payload: ILogin) => {
     const user = await prisma.user.findFirst({
         where: {
             idNo: payload.idNo,
+        },
+        include: {
+            studentProfile: {
+                select: {
+                    departmentId: true,
+                }
+            },
+            facultyProfile: {
+                select: {
+                    departmentId: true,
+                }
+            },
+            adminProfile: {
+                select: {
+                    departmentId: true,
+                }
+            },
         }
     });
     if (!user) {
-        throw new Error("Id or password is incorrect");
+        throw new AppError(status.BAD_REQUEST, "Id or password is incorrect");
     }
     const isPasswordValid = await bcrypt.compare(payload.password, user.password);
     if (!isPasswordValid) {
-        throw new Error("Id or password is incorrect");
+        throw new AppError(status.BAD_REQUEST, "Id or password is incorrect");
     }
 
     return user;

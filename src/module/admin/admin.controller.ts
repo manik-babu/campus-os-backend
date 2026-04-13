@@ -26,20 +26,7 @@ const createCourse = catchAsync(async (req: Request, res: Response) => {
         data: result,
     })
 });
-const getBatches = catchAsync(async (req: Request, res: Response) => {
-    const departmentId = req.query.departmentId;
-    if (!departmentId) {
-        throw new AppError(400, "You must provide a departmentId");
-    }
 
-    const result = await adminService.getBatches(departmentId as string);
-    sendResponse(res, {
-        statusCode: status.OK,
-        ok: true,
-        message: "Batches retrieved successfully",
-        data: result,
-    });
-});
 const createCourseOffering = catchAsync(async (req: Request, res: Response) => {
     const result = await adminService.createCourseOffering(req.body);
     sendResponse(res, {
@@ -72,7 +59,6 @@ const getAdmissionForms = catchAsync(async (req: Request, res: Response) => {
 export const adminController = {
     createBatch,
     createCourse,
-    getBatches,
     createCourseOffering,
     getAdmissionForms,
     enrollBatchStudents,

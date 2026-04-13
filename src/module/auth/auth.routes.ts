@@ -12,4 +12,5 @@ const router = Router();
 
 router.post("/register", auth(UserRole.ADMIN, UserRole.SUPER_ADMIN), upload.single("image"), authController.registration);
 router.post("/login", validateRequest(loginZodSchema), authController.login);
+
 export const authRouter = router;

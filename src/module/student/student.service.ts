@@ -147,7 +147,22 @@ const dropEnrollment = async (enrollmentId: string, student: LoggedInUser) => {
         return droppedEnrollment;
     }
 };
-const getEnrolledCourses = async (studentId: string, semesterId: string) => {
+const getEnrolledCourses = async (studentId: string, semesterId: string | null) => {
+    if (!semesterId) {
+        const lastSemester = await prisma.semester.findFirst({
+            orderBy: {
+                createdAt: "desc",
+            },
+            select: {
+                id: true,
+            }
+        });
+        if (!lastSemester) {
+            throw new AppError(status.NOT_FOUND, "No semester found");
+        }
+        semesterId = lastSemester.id;
+    }
+
     const enrollments = await prisma.enrollment.findMany({
         where: {
             studentId,
@@ -174,7 +189,7 @@ const getEnrolledCourses = async (studentId: string, semesterId: string) => {
                 }
             },
 
-        }
+        },
     });
     return enrollments.map(enrollment => ({
         id: enrollment.id,

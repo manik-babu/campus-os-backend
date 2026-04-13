@@ -8,6 +8,7 @@ import { env } from "../../config/env";
 import { getParsedData } from "../../helper/getParsedData";
 import { uploadToCloudinary } from "../../config/cloudinary";
 import { IUploadedImage } from "./user.interface";
+import { UserRole } from "../../../generated/prisma/enums";
 
 const registration = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -40,33 +41,45 @@ const registration = async (req: Request, res: Response, next: NextFunction) => 
 const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const result = await authService.login(req.body);
+        const role = result.role;
+        const departmentId = () => {
+            if (role === UserRole.ADMIN) return result.adminProfile?.departmentId;
+            if (role === UserRole.FACULTY) return result.facultyProfile?.departmentId;
+            if (role === UserRole.STUDENT) return result.studentProfile?.departmentId;
+            return null;
+        }
+        const data = {
+            id: result.id,
+            name: result.name,
+            role: result.role,
+            email: result.email,
+            idNo: result.idNo,
+            registrationNo: result.registrationNo,
+            status: result.status,
+            departmentId: departmentId()
+        }
         const token = jwt.sign(
-            {
-                id: result.id,
-                name: result.name,
-                role: result.role,
-                email: result.email,
-                idNo: result.idNo,
-                registrationNo: result.registrationNo,
-                status: result.status
-            },
+            data,
             env.JWT_SECRET as string,
             {
                 expiresIn: "30d"
             }
         );
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production", // Set secure flag in production
-            sameSite: "strict", // Adjust sameSite attribute as needed
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-        })
+        // res.cookie("token", token, {
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === "production", // Set secure flag in production
+        //     sameSite: "lax", // Adjust sameSite attribute as needed
+        //     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        // })
 
         sendResponse(res, {
             statusCode: status.OK,
             ok: true,
             message: "Login successful",
-            data: result,
+            data: {
+                token,
+                user: data
+            },
         })
     } catch (error: any) {
         next(error);

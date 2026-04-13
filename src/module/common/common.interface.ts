@@ -1,8 +1,7 @@
 export interface IGetCourseOfferings {
-    facultyId?: string;
-    semesterId?: string;
-    courseId?: string;
+    search?: string;
     batchId?: string;
+    page?: string;
 }
 export interface IStudentAdmitCardData {
     idNo: string;

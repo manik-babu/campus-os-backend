@@ -7,7 +7,7 @@
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "ESNext",
-    "moduleResolution": "node",
+    // "moduleResolution": "node",
     "target": "ES2023",
     "esModuleInterop": true,
     "types": [],

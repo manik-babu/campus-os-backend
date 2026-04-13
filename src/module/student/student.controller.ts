@@ -39,11 +39,8 @@ const dropEnrollment = catchAsync(async (req: Request, res: Response,) => {
     });
 });
 const getEnrolledCourses = catchAsync(async (req: Request, res: Response,) => {
-    const semesterId = req.query.semesterId;
-    if (!semesterId) {
-        throw new AppError(status.BAD_REQUEST, "Semester ID is required");
-    }
-    const enrollments = await studentService.getEnrolledCourses(req.user?.id as string, semesterId as string);
+    const semesterId: string | null = req.query.semesterId as string || null;
+    const enrollments = await studentService.getEnrolledCourses(req.user?.id as string, semesterId);
     sendResponse(res, {
         statusCode: status.OK,
         ok: true,

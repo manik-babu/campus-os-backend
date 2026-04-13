@@ -10,7 +10,6 @@ const router = Router();
 router.post("/create-batch", validateRequest(createBatchZodSchema), adminController.createBatch);
 router.post("/create-course", validateRequest(CourseZodSchema), adminController.createCourse);
 router.post("/create-course-offering", validateRequest(CourseOfferingZodSchema), adminController.createCourseOffering);
-router.get("/batches", adminController.getBatches);
 router.get("/admission-forms", adminController.getAdmissionForms);
 router.post("/enroll-batch-students", adminController.enrollBatchStudents);
 

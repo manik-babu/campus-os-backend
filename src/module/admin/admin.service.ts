@@ -34,14 +34,7 @@ const createBatch = async (admin: LoggedInUser, data: { departmentId: string; de
     });
     return batch;
 }
-const getBatches = async (departmentId: string) => {
-    const batches = await prisma.batch.findMany({
-        where: {
-            departmentId: departmentId
-        }
-    });
-    return batches;
-}
+
 const createCourse = async (payload: Omit<Course, "id" | "createdAt" | "updatedAt">) => {
     const course = await prisma.course.create({
         data: payload,
@@ -191,7 +184,6 @@ const getAdmissionForms = async (admin: LoggedInUser) => {
 export const adminService = {
     createBatch,
     createCourse,
-    getBatches,
     createCourseOffering,
     getAdmissionForms,
     enrollBatchStudents,

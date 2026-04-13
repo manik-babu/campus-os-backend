@@ -6,4 +6,5 @@ export interface LoggedInUser {
     idNo: string;
     registrationNo: string;
     status: string;
+    departmentId: string | null;
 }

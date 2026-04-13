@@ -5,6 +5,7 @@ import { commonService } from "./common.service";
 import { Request, Response } from "express";
 import AppError from "../../helper/AppError";
 import { IStudentAdmitCardData } from "./common.interface";
+import { UserRole } from "../../../generated/prisma/enums";
 
 
 const getSemesters = catchAsync(async (req: Request, res: Response) => {
@@ -63,9 +64,29 @@ const getAdmit = catchAsync(async (req: Request, res: Response,) => {
     // });
 });
 
+const getBatches = catchAsync(async (req: Request, res: Response) => {
+    let departmentId = req.query.departmentId as string;
+    const user = req.user;
+    if (user?.role !== UserRole.SUPER_ADMIN) {
+        departmentId = user?.departmentId as string;
+    }
+    if (!departmentId) {
+        throw new AppError(400, "You must provide a departmentId");
+    }
+
+    const result = await commonService.getBatches(departmentId as string);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Batches retrieved successfully",
+        data: result,
+    });
+});
+
 export const commonController = {
     getSemesters,
     getCourseOfferings,
     getUserDetails,
     getAdmit,
+    getBatches,
 };
