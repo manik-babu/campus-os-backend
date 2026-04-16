@@ -9,6 +9,8 @@ import { getParsedData } from "../../helper/getParsedData";
 import { uploadToCloudinary } from "../../config/cloudinary";
 import { IUploadedImage } from "./user.interface";
 import { UserRole } from "../../../generated/prisma/enums";
+import catchAsync from "../../utils/catchAsync";
+import AppError from "../../helper/AppError";
 
 const registration = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -65,12 +67,12 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
                 expiresIn: "30d"
             }
         );
-        // res.cookie("token", token, {
-        //     httpOnly: true,
-        //     secure: process.env.NODE_ENV === "production", // Set secure flag in production
-        //     sameSite: "lax", // Adjust sameSite attribute as needed
-        //     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-        // })
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", // Set secure flag in production
+            sameSite: "lax", // Adjust sameSite attribute as needed
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        })
 
         sendResponse(res, {
             statusCode: status.OK,
@@ -85,7 +87,28 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
         next(error);
     }
 }
+const changePassword = catchAsync(async (req: Request, res: Response) => {
+    const { oldPassword, newPassword } = req.body;
+    const user = req.user;
+    if (!user) {
+        throw new AppError(status.UNAUTHORIZED, "You must be logged in to change your password");
+    }
+    const userPass = await authService.getUserPass(user.id);
+    const isMatch = await bcrypt.compare(oldPassword, userPass as string);
+    if (!isMatch) {
+        throw new AppError(status.BAD_REQUEST, "Old password is incorrect");
+    }
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    await authService.changePassword(user.id, hashedNewPassword);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Password changed successfully",
+        data: true,
+    });
+});
 export const authController = {
     registration,
-    login
+    login,
+    changePassword,
 }

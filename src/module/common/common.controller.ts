@@ -6,6 +6,7 @@ import { Request, Response } from "express";
 import AppError from "../../helper/AppError";
 import { IStudentAdmitCardData } from "./common.interface";
 import { UserRole } from "../../../generated/prisma/enums";
+import bcrypt from "bcryptjs";
 
 
 const getSemesters = catchAsync(async (req: Request, res: Response) => {
@@ -28,12 +29,10 @@ const getCourseOfferings = catchAsync(async (req: Request, res: Response) => {
 });
 const getUserDetails = catchAsync(async (req: Request, res: Response) => {
     let userId: string | null = req.query.userId as string || null;
-    let role: string | null = req.query.role as string || null;
-    if (!userId || !role) {
+    if (!userId) {
         userId = req.user?.id as string;
-        role = req.user?.role as string;
     }
-    const result = await commonService.getUserDetails(userId, role as any);
+    const result = await commonService.getUserDetails(userId);
     sendResponse(res, {
         statusCode: status.OK,
         ok: true,

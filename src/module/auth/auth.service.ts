@@ -149,7 +149,35 @@ const login = async (payload: ILogin) => {
 
     return user;
 }
+
+
+const getUserPass = async (userId: string) => {
+    const user = await prisma.user.findUnique({
+        where: {
+            id: userId
+        },
+        select: {
+            password: true,
+        }
+    });
+    if (!user) {
+        throw new AppError(status.NOT_FOUND, "User not found");
+    }
+    return user?.password;
+};
+const changePassword = async (userId: string, newPassword: string) => {
+    return await prisma.user.update({
+        where: {
+            id: userId
+        },
+        data: {
+            password: newPassword
+        }
+    });
+}
 export const authService = {
     registration,
-    login
+    login,
+    getUserPass,
+    changePassword
 }

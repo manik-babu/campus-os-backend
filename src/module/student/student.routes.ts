@@ -8,7 +8,7 @@ const router = Router();
 //? /api/v1/students -> studentRouter
 
 router.post("/enroll", validateRequest(enrollSingleCourseZodSchema), studentController.enrollSingleCourse);
-router.get("/bill", studentController.studentBill);
+router.get("/bill/:semesterId", studentController.studentBill);
 router.delete("/enrollments/drop", validateRequest(dropEnrollmentZodSchema), studentController.dropEnrollment);
 router.get("/enrollments", studentController.getEnrolledCourses);
 router.get("/results", studentController.getResult);

@@ -12,12 +12,12 @@ const enrollSingleCourse = catchAsync(async (req: Request, res: Response,) => {
     sendResponse(res, {
         statusCode: status.OK,
         ok: true,
-        message: "Enrolled in the course successfully",
+        message: "Course enrollment successful",
         data: result,
     });
 });
 const studentBill = catchAsync(async (req: Request, res: Response,) => {
-    const semesterId = req.query.semesterId;
+    const semesterId = req.params.semesterId;
     if (!semesterId) {
         throw new AppError(status.BAD_REQUEST, "Semester ID is required");
     }

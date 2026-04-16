@@ -2,49 +2,12 @@ import status from "http-status";
 import * as z from "zod";
 
 /**
- * model User {
-    id              Int              @id @default(autoincrement())
-    name            String
-    image           String?
-    email           String           @unique
-    password        String
-    role            UserRole
-    status          UserStatus       @default(ACTIVE)
-    gender          UserGender
-    studentProfile  StudentProfile?
-    facultyProfile  FacultyProfile?
-    courseOfferings CourseOffering[]
-    adminProfiles   AdminProfile?
-    enrollments     Enrollment[]
-    bills           Bill[]
-    createdAt       DateTime         @default(now())
-    updatedAt       DateTime         @updatedAt
-
-    @@map("users")
-}
-
-enum UserGender {
-    MALE
-    FEMALE
-    OTHER
-}
-
-enum UserRole {
-    SUPER_ADMIN
-    ADMIN
-    STUDENT
-    FACULTY
-}
-
-enum UserStatus {
-    ACTIVE
-    INACTIVE
-    SUSPENDED
-    TRANSFERRED
-    GRADUATED
-}
-
+ * Zod schema for validating password change requests
  */
+export const changePasswordZodSchema = z.object({
+    oldPassword: z.string().min(1, "Please enter your old password"),
+    newPassword: z.string().min(6, "New password must be at least 6 characters long"),
+});
 
 export const userZodSchema = z.object({
     name: z.string(),

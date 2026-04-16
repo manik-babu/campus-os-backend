@@ -5,6 +5,8 @@ import puppeteer from "puppeteer";
 import fs from "fs";
 import path from "path";
 import ejs from "ejs";
+import AppError from "../../helper/AppError";
+import status from "http-status";
 const getSemesters = async () => {
     const semesters = await prisma.semester.findMany({
         orderBy: {
@@ -130,48 +132,54 @@ const getCourseOfferings = async (payload: IGetCourseOfferings) => {
         }
     };
 }
-const getUserDetails = async (userId: string, role: UserRole) => {
+const getUserDetails = async (userId: string) => {
     const user = await prisma.user.findUnique({
         where: {
             id: userId
         },
         include: {
-            ...(role === UserRole.STUDENT && {
-                studentProfile: {
-                    include: {
-                        batch: {
-                            select: {
-                                batchNo: true
-                            }
-                        },
-                        department: {
-                            select: {
-                                shortName: true,
-                                name: true
-                            }
-                        },
-                        program: {
-                            select: {
-                                name: true,
-                                shortName: true
-                            }
+            adminProfile: {
+                include: {
+                    department: {
+                        select: {
+                            name: true,
+                            shortName: true,
                         }
                     }
                 }
-            }),
-            ...(role === UserRole.FACULTY && {
-                facultyProfile: {
-                    include: {
-                        department: {
-                            select: {
-                                shortName: true,
-                                name: true
-                            }
-                        },
-                        graduations: true
+            },
+            studentProfile: {
+                include: {
+                    batch: {
+                        select: {
+                            batchNo: true
+                        }
+                    },
+                    department: {
+                        select: {
+                            shortName: true,
+                            name: true
+                        }
+                    },
+                    program: {
+                        select: {
+                            name: true,
+                            shortName: true
+                        }
                     }
                 }
-            })
+            },
+            facultyProfile: {
+                include: {
+                    department: {
+                        select: {
+                            shortName: true,
+                            name: true
+                        }
+                    },
+                    graduations: true
+                }
+            }
         }
     });
     return user;

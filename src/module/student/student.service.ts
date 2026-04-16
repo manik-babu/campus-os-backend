@@ -20,23 +20,11 @@ const enrollSingleCourse = async (courseOfferingsId: string, student: LoggedInUs
 
         }
     });
-    const studentInfo = await prisma.user.findUnique({
-        where: {
-            id: student.id,
-        },
-        select: {
-            studentProfile: {
-                select: {
-                    departmentId: true,
-                }
-            }
-        }
-    })
 
     if (!offerings) {
         throw new AppError(status.NOT_FOUND, "Course offering not found");
     }
-    if (offerings.course.departmentId !== studentInfo?.studentProfile?.departmentId) {
+    if (offerings.course.departmentId !== student.departmentId) {
         throw new AppError(status.FORBIDDEN, "You are not allowed to enroll in this course");
     }
     const existingEnrollment = await prisma.enrollment.findUnique({
@@ -99,11 +87,7 @@ const enrollSingleCourse = async (courseOfferingsId: string, student: LoggedInUs
     }
     else {
         return {
-            ...enrollment,
-            course: {
-                title: offerings.course.title,
-                credits: offerings.course.credits,
-            }
+            courseTitle: offerings.course.title,
         };
     }
 };
@@ -113,17 +97,37 @@ const studentBill = async (studentId: string, semesterId: string) => {
             studentId,
             semesterId,
         },
-        include: {
-            billItems: true,
-            payments: true,
+        select: {
+            id: true,
+            billItems: {
+                select: {
+                    id: true,
+                    name: true,
+                    totalAmount: true,
+                }
+            },
+            payments: {
+                select: {
+                    id: true,
+                    amount: true,
+                    transactionId: true,
+                    createdAt: true,
+                    status: true,
+                }
+            },
+            semester: {
+                select: {
+                    name: true,
+                }
+            }
         }
     });
-    const totalAmount = bill?.billItems.reduce((acc, item) => acc + Number(item.totalAmount), 0) || 0;
-    const totalPayments = bill?.payments.reduce((acc, payment) => acc + Number(payment.amount), 0) || 0;
     if (!bill) {
-        throw new AppError(status.NOT_FOUND, "Bill not found for the given semester");
+        return null;
     }
-    return { ...bill, totalAmount, totalPayments, dueAmount: totalAmount - totalPayments };
+    const totalAmount = bill.billItems.reduce((acc, item) => acc + Number(item.totalAmount), 0) || 0;
+    const totalPayments = bill.payments.reduce((acc, payment) => acc + Number(payment.amount), 0) || 0;
+    return { ...bill, semester: bill.semester.name, totalAmount, totalPayments, dueAmount: totalAmount - totalPayments };
 };
 const dropEnrollment = async (enrollmentId: string, student: LoggedInUser) => {
     const enrollment = await prisma.enrollment.count({
