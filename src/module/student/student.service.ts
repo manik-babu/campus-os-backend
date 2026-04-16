@@ -2,6 +2,7 @@ import status from "http-status";
 import { LoggedInUser } from "../../@types/loggedInUser";
 import AppError from "../../helper/AppError";
 import { prisma } from "../../lib/prisma";
+import { EnrollmentStatus } from "../../../generated/prisma/enums";
 
 const enrollSingleCourse = async (courseOfferingsId: string, student: LoggedInUser) => {
     const offerings = await prisma.courseOffering.findUnique({
@@ -247,10 +248,66 @@ const getResult = async (studentId: string, semesterId: string) => {
         }
     }));
 }
+
+const resultStatics = async (studentId: string) => {
+    const results = await prisma.enrollment.findMany({
+        where: {
+            studentId,
+            status: EnrollmentStatus.COMPLETED,
+        },
+        select: {
+
+            result: {
+                select: {
+                    points: true,
+                }
+            },
+            courseOffering: {
+                select: {
+                    semester: {
+                        select: {
+                            id: true,
+                            name: true,
+                        }
+                    },
+                    course: {
+                        select: {
+                            credits: true,
+                        }
+                    }
+                }
+            }
+        }
+    });
+    const data = results.reduce((acc, curr) => {
+        const semesterId = curr.courseOffering.semester.id;
+        const semesterName = curr.courseOffering.semester.name;
+        if (!acc[semesterId]) {
+            acc[semesterId] = {
+                semesterId,
+                semesterName,
+                totalPoints: 0,
+                totalCredits: 0,
+            };
+        }
+        if (curr.result?.points) {
+            acc[semesterId].totalPoints += Number(curr.result.points) * curr.courseOffering.course.credits;
+            acc[semesterId].totalCredits += Number(curr.courseOffering.course.credits);
+        }
+        return acc;
+    }, {} as Record<string, { semesterId: string; semesterName: string; totalPoints: number; totalCredits: number }>);
+
+    const dataArray = Object.values(data).map(item => ({
+        semesterName: item.semesterName,
+        sgpa: item.totalCredits > 0 ? (item.totalPoints / item.totalCredits).toFixed(2) : 0,
+    }));
+    return dataArray;
+}
 export const studentService = {
     enrollSingleCourse,
     studentBill,
     dropEnrollment,
     getEnrolledCourses,
     getResult,
+    resultStatics,
 };

@@ -12,5 +12,7 @@ router.get("/bill/:semesterId", studentController.studentBill);
 router.delete("/enrollments/drop", validateRequest(dropEnrollmentZodSchema), studentController.dropEnrollment);
 router.get("/enrollments", studentController.getEnrolledCourses);
 router.get("/results", studentController.getResult);
+router.get("/results/statics", studentController.resultStatics);
+
 
 export const studentRouter = router;

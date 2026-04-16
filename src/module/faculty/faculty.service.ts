@@ -1,4 +1,6 @@
+import { EnrollmentStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
+import { calculateGpa, IMarks } from "../../utils/calculateGpa";
 import { IAttendanceRecord, IStudentMark } from "./faculty.interface";
 
 
@@ -117,15 +119,52 @@ const updateStudentMark = async (studentMarks: IStudentMark) => {
                 enrollmentId
             },
             data: {
-                classTest1: mark.classTest1 || null,
-                classTest2: mark.classTest2 || null,
-                midterm: mark.midterm || null,
-                final: mark.final || null,
-                attendance: mark.attendance || null,
+                ...(mark.classTest1 !== undefined && { classTest1: mark.classTest1 }),
+                ...(mark.classTest2 !== undefined && { classTest2: mark.classTest2 }),
+                ...(mark.midterm !== undefined && { midterm: mark.midterm }),
+                ...(mark.final !== undefined && { final: mark.final }),
+                ...(mark.attendance !== undefined && { attendance: mark.attendance }),
             },
+            select: {
+                classTest1: true,
+                classTest2: true,
+                midterm: true,
+                final: true,
+                attendance: true,
+            }
+        });
+        console.log({
+            updatedMark
         })
+        const resultComplete = Object.values(updatedMark).every(value => value !== null);
+        if (resultComplete) {
+            const { points, grade } = calculateGpa(Number(updatedMark.classTest1) + Number(updatedMark.classTest2) + Number(updatedMark.midterm) + Number(updatedMark.final) + Number(updatedMark.attendance));
+            console.log({
+                points,
+                grade
+            })
+            await Promise.all([
+                prisma.enrollment.update({
+                    where: {
+                        id: enrollmentId,
+                    },
+                    data: {
+                        status: EnrollmentStatus.COMPLETED,
+                    },
+                }),
+                prisma.result.update({
+                    where: {
+                        enrollmentId
+                    },
+                    data: {
+                        points,
+                        grade,
+                    }
+                })
+            ]);
+        }
         return {
-            enrollmentId: updatedMark.enrollmentId,
+            enrollmentId,
         };
     }));
     return updatedMarks;

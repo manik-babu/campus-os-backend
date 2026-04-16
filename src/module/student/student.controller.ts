@@ -61,7 +61,15 @@ const getResult = catchAsync(async (req: Request, res: Response,) => {
         data: results,
     });
 });
-
+const resultStatics = catchAsync(async (req: Request, res: Response,) => {
+    const result = await studentService.resultStatics(req.user?.id as string);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Result statics retrieved successfully",
+        data: result,
+    });
+});
 
 export const studentController = {
     enrollSingleCourse,
@@ -69,4 +77,5 @@ export const studentController = {
     dropEnrollment,
     getEnrolledCourses,
     getResult,
+    resultStatics,
 };
