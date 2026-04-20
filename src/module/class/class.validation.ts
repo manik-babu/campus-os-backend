@@ -26,10 +26,11 @@ enum MaterialType {
 
 */
 import * as z from "zod";
+import { MaterialType } from "../../../generated/prisma/enums";
 export const coursePostZodSchema = z.object({
     courseOfferingId: z.string(),
     message: z.string().nullable(),
-    type: z.enum(["LECTURE", "ASSIGNMENT", "NOTICE", "COMMENT"]),
+    type: z.enum(MaterialType),
     parentId: z.string().nullable(),
     assignmentDeadLine: z.string().refine((date) => !isNaN(Date.parse(date)), {
         message: "Invalid date format"

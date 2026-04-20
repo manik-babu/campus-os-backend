@@ -23,5 +23,5 @@ apiRouter.use("/payment", paymentRouter);
 apiRouter.use("/common", commonRouter);
 apiRouter.use("/students", auth(UserRole.STUDENT), studentRouter);
 apiRouter.use("/faculty", auth(UserRole.FACULTY), facultyRouter);
-apiRouter.use("/class", auth(UserRole.FACULTY, UserRole.STUDENT), classRouter);
+apiRouter.use("/classes", auth(UserRole.FACULTY, UserRole.STUDENT), classRouter);
 export default apiRouter;

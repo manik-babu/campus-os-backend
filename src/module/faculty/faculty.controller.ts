@@ -38,9 +38,6 @@ const takeAttendance = catchAsync(async (req: Request, res: Response,) => {
     if (!attendanceRecord || attendanceRecord.length === 0) {
         throw new AppError(status.BAD_REQUEST, "Attendance records are required");
     }
-    console.log({
-        attendanceRecord
-    })
     const result = await facultyService.takeAttendance(attendanceRecord);
     sendResponse(res, {
         statusCode: status.OK,
@@ -59,10 +56,28 @@ const updateStudentMark = catchAsync(async (req: Request, res: Response,) => {
     });
 });
 
+const getAttendanceRecords = catchAsync(async (req: Request, res: Response,) => {
+    const classId = req.params.classId;
+    const { year, month } = req.query;
+    if (!classId) {
+        throw new AppError(status.NOT_FOUND, "Class ID is required");
+    }
+    if (!year || !month) {
+        throw new AppError(status.BAD_REQUEST, "Year and month are required");
+    }
+    const result = await facultyService.getAttendanceRecords(classId as string, Number(year), Number(month));
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Attendance records retrieved successfully",
+        data: result,
+    });
+});
+
 export const facultyController = {
     getClasses,
     enrolledStudents,
     takeAttendance,
     updateStudentMark,
-
+    getAttendanceRecords
 }

@@ -39,7 +39,7 @@ const dropEnrollment = catchAsync(async (req: Request, res: Response,) => {
     });
 });
 const getEnrolledCourses = catchAsync(async (req: Request, res: Response,) => {
-    const semesterId: string | null = req.query.semesterId as string || null;
+    const semesterId: string = req.params.semesterId as string;
     const enrollments = await studentService.getEnrolledCourses(req.user?.id as string, semesterId);
     sendResponse(res, {
         statusCode: status.OK,
@@ -70,6 +70,15 @@ const resultStatics = catchAsync(async (req: Request, res: Response,) => {
         data: result,
     });
 });
+const getAcademicRecords = catchAsync(async (req: Request, res: Response,) => {
+    const result = await studentService.getAcademicRecords(req.user?.id as string);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Academic records retrieved successfully",
+        data: result,
+    });
+});
 
 export const studentController = {
     enrollSingleCourse,
@@ -78,4 +87,5 @@ export const studentController = {
     getEnrolledCourses,
     getResult,
     resultStatics,
+    getAcademicRecords,
 };

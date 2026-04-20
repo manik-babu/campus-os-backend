@@ -4,7 +4,7 @@ import { classController } from "./class.controller";
 
 
 const router = Router();
-//? /api/v1/class -> classRouter
+//? /api/v1/classes -> classRouter
 //? This file will contain all the routes related to class management (give lecture sheet, assignments, class notice by faculty, etc.)
 
 router.post("/course-posts", upload.single("attachment"), classController.addCoursePost);

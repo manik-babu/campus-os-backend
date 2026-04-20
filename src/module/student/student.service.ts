@@ -152,22 +152,7 @@ const dropEnrollment = async (enrollmentId: string, student: LoggedInUser) => {
         return droppedEnrollment;
     }
 };
-const getEnrolledCourses = async (studentId: string, semesterId: string | null) => {
-    if (!semesterId) {
-        const lastSemester = await prisma.semester.findFirst({
-            orderBy: {
-                createdAt: "desc",
-            },
-            select: {
-                id: true,
-            }
-        });
-        if (!lastSemester) {
-            throw new AppError(status.NOT_FOUND, "No semester found");
-        }
-        semesterId = lastSemester.id;
-    }
-
+const getEnrolledCourses = async (studentId: string, semesterId: string) => {
     const enrollments = await prisma.enrollment.findMany({
         where: {
             studentId,
@@ -202,6 +187,7 @@ const getEnrolledCourses = async (studentId: string, semesterId: string | null) 
         courseTitle: enrollment.courseOffering.course.title,
         credits: enrollment.courseOffering.course.credits,
         facultyName: enrollment.courseOffering.faculty.name,
+        offeringId: enrollment.courseOffering.id,
     }));
 }
 const getResult = async (studentId: string, semesterId: string) => {
@@ -303,6 +289,50 @@ const resultStatics = async (studentId: string) => {
     }));
     return dataArray;
 }
+const getAcademicRecords = async (studentId: string) => {
+
+    const [completedSemesters, completedCourses, earnedCredits] = await prisma.$transaction([
+        prisma.courseOffering.findMany({
+            distinct: ["semesterId"],
+            where: {
+                enrollments: {
+                    some: {
+                        studentId,
+                        status: EnrollmentStatus.COMPLETED,
+                    }
+                }
+            }
+        }),
+        prisma.enrollment.count({
+            where: {
+                studentId,
+                status: EnrollmentStatus.COMPLETED,
+            }
+        }),
+        prisma.enrollment.findMany({
+            where: {
+                studentId,
+                status: EnrollmentStatus.COMPLETED,
+            },
+            select: {
+                courseOffering: {
+                    select: {
+                        course: {
+                            select: {
+                                credits: true,
+                            }
+                        }
+                    }
+                }
+            }
+        })
+    ])
+    return {
+        completedSemesters: completedSemesters.length,
+        completedCourses: completedCourses,
+        earnedCredits: earnedCredits.reduce((acc, curr) => acc + curr.courseOffering.course.credits, 0) || 0,
+    }
+};
 export const studentService = {
     enrollSingleCourse,
     studentBill,
@@ -310,4 +340,5 @@ export const studentService = {
     getEnrolledCourses,
     getResult,
     resultStatics,
+    getAcademicRecords,
 };

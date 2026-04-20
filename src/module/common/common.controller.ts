@@ -81,11 +81,24 @@ const getBatches = catchAsync(async (req: Request, res: Response) => {
         data: result,
     });
 });
-
+const getCourseOfferingInfo = catchAsync(async (req: Request, res: Response) => {
+    const courseOfferingId = req.params.courseOfferingId as string;
+    if (!courseOfferingId) {
+        throw new AppError(400, "You must provide a courseOfferingId");
+    }
+    const result = await commonService.getCourseOfferingInfo(courseOfferingId);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Course offering info retrieved successfully",
+        data: result,
+    });
+});
 export const commonController = {
     getSemesters,
     getCourseOfferings,
     getUserDetails,
     getAdmit,
     getBatches,
+    getCourseOfferingInfo,
 };

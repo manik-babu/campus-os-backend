@@ -12,6 +12,6 @@ router.get("/classes/:semesterId", facultyController.getClasses);
 router.get("/students/:classId", facultyController.enrolledStudents);
 router.post("/students/attendance", validateRequest(AttendanceRecordZodSchema), facultyController.takeAttendance);
 router.post("/students/marks", validateRequest(studentMarkZodSchema), facultyController.updateStudentMark);
-
+router.get("/students/attendance/:classId", facultyController.getAttendanceRecords);
 
 export const facultyRouter = router;

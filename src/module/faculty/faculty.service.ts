@@ -1,4 +1,6 @@
+import status from "http-status";
 import { EnrollmentStatus } from "../../../generated/prisma/enums";
+import AppError from "../../helper/AppError";
 import { prisma } from "../../lib/prisma";
 import { calculateGpa, IMarks } from "../../utils/calculateGpa";
 import { IAttendanceRecord, IStudentMark } from "./faculty.interface";
@@ -13,18 +15,24 @@ const getClasses = async (facultyId: string, semesterId: string) => {
         select: {
             id: true,
             course: {
-                include: {
-                    department: {
-                        select: {
-                            shortName: true,
-                        }
-                    },
+                select: {
+                    code: true,
+                    title: true,
                 }
             },
-            semester: true,
             batch: {
                 select: {
                     batchNo: true,
+                }
+            },
+            department: {
+                select: {
+                    shortName: true,
+                    program: {
+                        select: {
+                            shortName: true,
+                        }
+                    }
                 }
             },
         },
@@ -33,13 +41,10 @@ const getClasses = async (facultyId: string, semesterId: string) => {
         id: cls.id,
         courseCode: cls.course.code,
         courseName: cls.course.title,
-        department: cls.course.department.shortName,
+        department: cls.department.program.shortName + " • " + cls.department.shortName,
         batch: cls.batch.batchNo,
     }));
-    return {
-        semester: classes[0]?.semester.name || "Unknown Semester",
-        classes: formattedClasses,
-    };
+    return formattedClasses;
 }
 const enrolledStudents = async (classId: string) => {
     const courseDetails = await prisma.courseOffering.findUnique({
@@ -47,6 +52,7 @@ const enrolledStudents = async (classId: string) => {
             id: classId,
         },
         select: {
+            id: true,
             course: {
                 select: {
                     title: true,
@@ -87,6 +93,7 @@ const enrolledStudents = async (classId: string) => {
     });
     return {
         classDetails: {
+            classId: courseDetails?.id,
             courseName: courseDetails?.course.title,
             courseCode: courseDetails?.course.code,
             semester: courseDetails?.semester.name,
@@ -102,14 +109,27 @@ const enrolledStudents = async (classId: string) => {
     };
 }
 const takeAttendance = async (attendanceRecord: IAttendanceRecord[]) => {
-    const attendances = await prisma.attendance.createMany({
+    if (attendanceRecord.length === 0) {
+        return null;
+    }
+    const isExists = await prisma.attendance.findFirst({
+        where: {
+            date: attendanceRecord[0]?.date as string,
+            courseOfferingId: attendanceRecord[0]?.courseOfferingId as string,
+        }
+    });
+    if (isExists) {
+        throw new AppError(status.BAD_REQUEST, "Attendance for this date already recorded");
+    }
+    await prisma.attendance.createMany({
         data: attendanceRecord.map(record => ({
-            date: new Date(record.date),
-            enrollmentId: record.enrollmentId,
+            date: record.date as string,
+            enrollmentId: record.enrollmentId as string,
             isPresent: record.isPresent,
+            courseOfferingId: record.courseOfferingId as string,
         })),
     });
-    return attendances;
+    return null;
 };
 const updateStudentMark = async (studentMarks: IStudentMark) => {
     const updatedMarks = await Promise.all(studentMarks.map(async (studentMark) => {
@@ -133,16 +153,9 @@ const updateStudentMark = async (studentMarks: IStudentMark) => {
                 attendance: true,
             }
         });
-        console.log({
-            updatedMark
-        })
         const resultComplete = Object.values(updatedMark).every(value => value !== null);
         if (resultComplete) {
             const { points, grade } = calculateGpa(Number(updatedMark.classTest1) + Number(updatedMark.classTest2) + Number(updatedMark.midterm) + Number(updatedMark.final) + Number(updatedMark.attendance));
-            console.log({
-                points,
-                grade
-            })
             await Promise.all([
                 prisma.enrollment.update({
                     where: {
@@ -169,9 +182,79 @@ const updateStudentMark = async (studentMarks: IStudentMark) => {
     }));
     return updatedMarks;
 };
+const getAttendanceRecords = async (classId: string, year: number, month: number) => {
+    const records = await prisma.attendance.findMany({
+        where: {
+            courseOfferingId: classId,
+            date: {
+                gte: new Date(year, month - 1, 1),
+                lt: new Date(year, month, 1)
+            }
+        },
+        select: {
+            date: true,
+            enrollment: {
+                select: {
+                    student: {
+                        select: {
+                            name: true,
+                            idNo: true,
+                        }
+                    }
+                }
+            },
+            isPresent: true,
+        },
+        orderBy: {
+            date: "asc",
+        }
+    });
+    const dates = await prisma.attendance.findMany({
+        distinct: ["date"],
+        where: {
+            courseOfferingId: classId,
+            date: {
+                gte: new Date(year, month - 1, 1),
+                lt: new Date(year, month, 1)
+            }
+        },
+        select: {
+            date: true,
+        },
+        orderBy: {
+            date: "asc",
+        }
+    });
+
+    const studentRecords = records.reduce((acc, record) => {
+        const studentIdNo = record.enrollment.student.idNo;
+        const studentName = record.enrollment.student.name;
+        const isPresent = record.isPresent;
+        if (!acc[studentIdNo]) {
+            acc[studentIdNo] = {
+                studentName,
+                studentIdNo,
+                attendance: [],
+            };
+        }
+        acc[studentIdNo].attendance.push(isPresent);
+        return acc;
+    }, {} as Record<string, {
+        studentName: string;
+        studentIdNo: string;
+        attendance: boolean[];
+    }>);
+    const finalStudentRecords = Object.values(studentRecords);
+    return {
+        dates: dates.map(record => record.date),
+        records: finalStudentRecords
+    };
+};
+
 export const facultyService = {
     getClasses,
     enrolledStudents,
     takeAttendance,
     updateStudentMark,
+    getAttendanceRecords
 }

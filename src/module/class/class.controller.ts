@@ -24,9 +24,15 @@ const addCoursePost = catchAsync(async (req: Request, res: Response,) => {
         attachment = await uploadToCloudinary({
             file: file as Express.Multer.File,
             folder: `${env.CLOUDINARY_FOLDER}/course-posts`,
-            resource_type: "raw"
+            resource_type: file.mimetype.startsWith("image/") ? "image" : "raw"
         }).then(result => result.secure_url);
     }
+    // sendResponse(res, {
+    //     statusCode: status.CREATED,
+    //     ok: true,
+    //     message: "Course post created successfully",
+    //     data: null
+    // })
     const result = await classService.addCoursePost({ ...parsedData, authorId: user?.id } as CoursePostInput, attachment);
 
     sendResponse(res, {

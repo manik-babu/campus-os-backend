@@ -19,8 +19,8 @@ model CoursePost {
 }
 
 enum MaterialType {
-    LECTURE
+    MATERIAL
+    ANNOUNCEMENT
     ASSIGNMENT
-    NOTICE
     COMMENT
 }

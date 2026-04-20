@@ -298,7 +298,45 @@ const generateAdmitCard = async (student: IStudentAdmitCardData) => {
         throw error;
     }
 }
-
+const getCourseOfferingInfo = async (courseOfferingId: string) => {
+    const courseOfferings = await prisma.courseOffering.findUnique({
+        where: {
+            id: courseOfferingId
+        },
+        select: {
+            course: {
+                select: {
+                    code: true,
+                    title: true,
+                }
+            },
+            faculty: {
+                select: {
+                    name: true,
+                }
+            },
+            batch: {
+                select: {
+                    batchNo: true,
+                }
+            },
+            department: {
+                select: {
+                    shortName: true,
+                }
+            }
+        }
+    });
+    const data = {
+        offeringId: courseOfferingId,
+        courseName: courseOfferings?.course.title,
+        courseCode: courseOfferings?.course.code,
+        facultyName: courseOfferings?.faculty.name,
+        batch: courseOfferings?.batch.batchNo,
+        department: courseOfferings?.department.shortName,
+    }
+    return data;
+}
 
 export const commonService = {
     getSemesters,
@@ -307,4 +345,5 @@ export const commonService = {
     getAdmit,
     generateAdmitCard,
     getBatches,
+    getCourseOfferingInfo,
 };

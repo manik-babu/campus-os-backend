@@ -32,8 +32,8 @@ const createDepartment = async (req: Request, res: Response, next: NextFunction)
 const createSemester = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const data = req.body;
-        data.classStart = new Date(data.classStart);
-        data.classEnd = new Date(data.classEnd);
+        data.classStart = data.classStart;
+        data.classEnd = data.classEnd;
         const result = await superAdminService.createSemester(data)
         sendResponse(res, {
             statusCode: status.CREATED,

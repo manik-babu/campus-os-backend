@@ -71,7 +71,7 @@ const registration = async ({ userData, profileData, uploadedImage }: IRegistrat
                 data: {
                     userId: createdUser.id,
                     ...profileData as StudentProfileWithoutId,
-                    birthDate: new Date((profileData as StudentProfileWithoutId).birthDate), // Convert birthDate to Date object
+                    birthDate: (profileData as StudentProfileWithoutId).birthDate, // Convert birthDate to Date object
                 }
             })
         } else if (createdUser.role === UserRole.ADMIN) {

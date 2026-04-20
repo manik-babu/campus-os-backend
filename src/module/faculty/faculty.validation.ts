@@ -4,8 +4,9 @@ export const AttendanceRecordZodSchema = z.array(z.object({
     date: z.string().refine(date => !isNaN(Date.parse(date)), {
         message: "Invalid date format. Expected a valid date string.",
     }),
-    enrollmentId: z.string().uuid({ message: "Invalid enrollment ID format. Expected a UUID." }),
+    enrollmentId: z.string(),
     isPresent: z.boolean(),
+    courseOfferingId: z.string(),
 }));
 export const studentMarkZodSchema = z.array(z.object({
     enrollmentId: z.string("Enrollment ID is required"),

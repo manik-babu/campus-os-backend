@@ -6,9 +6,24 @@ const addCoursePost = async (data: CoursePostInput, attachment: string | null) =
     const createdPost = await prisma.coursePost.create({
         data: {
             ...data,
-            assignmentDeadLine: data.assignmentDeadLine ? new Date(data.assignmentDeadLine) : null,
+            assignmentDeadLine: data.assignmentDeadLine ? data.assignmentDeadLine : null,
             attachment
-        }
+        },
+        include: {
+            _count: {
+                select: {
+                    comments: true,
+                }
+            },
+            author: {
+                select: {
+                    id: true,
+                    name: true,
+                    idNo: true,
+                    role: true
+                }
+            }
+        },
     });
     return createdPost;
 }
@@ -57,7 +72,39 @@ const getCoursePosts = async (classId: string, search: IGetCoursePosts) => {
         skip: (search.page - 1) * search.limit,
         take: search.limit
     });
-    return posts;
+    const total = await prisma.coursePost.count({
+        where: {
+            courseOfferingId: classId,
+            type: {
+                not: MaterialType.COMMENT
+            },
+            ...(search.type !== "ALL" && { type: search.type }),
+            OR: [
+                {
+                    message: {
+                        contains: search.search,
+                        mode: "insensitive"
+                    }
+                },
+                {
+                    attachment: {
+                        contains: search.search,
+                        mode: "insensitive"
+                    }
+                }
+            ],
+        }
+    });
+
+    return {
+        posts,
+        meta: {
+            total,
+            page: search.page,
+            limit: search.limit,
+            totalPages: Math.ceil(total / search.limit)
+        }
+    };
 }
 const getComments = async (coursePostId: string, search: Omit<IGetCoursePosts, 'type' | "search">) => {
     const comments = await prisma.coursePost.findMany({
@@ -68,10 +115,39 @@ const getComments = async (coursePostId: string, search: Omit<IGetCoursePosts, '
         orderBy: {
             createdAt: search.orderBy
         },
+        include: {
+            _count: {
+                select: {
+                    comments: true,
+                }
+            },
+            author: {
+                select: {
+                    id: true,
+                    name: true,
+                    idNo: true,
+                    role: true
+                }
+            }
+        },
         skip: (search.page - 1) * search.limit,
         take: search.limit
     });
-    return comments;
+    const total = await prisma.coursePost.count({
+        where: {
+            parentId: coursePostId,
+            type: MaterialType.COMMENT
+        }
+    });
+    return {
+        comments,
+        meta: {
+            total,
+            page: search.page,
+            limit: search.limit,
+            totalPages: Math.ceil(total / search.limit)
+        }
+    };
 }
 
 export const classService = {

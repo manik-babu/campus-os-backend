@@ -6,4 +6,5 @@ export interface IAttendanceRecord {
     date: string;
     enrollmentId: string;
     isPresent: boolean;
+    courseOfferingId: string;
 }

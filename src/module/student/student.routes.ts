@@ -10,9 +10,9 @@ const router = Router();
 router.post("/enroll", validateRequest(enrollSingleCourseZodSchema), studentController.enrollSingleCourse);
 router.get("/bill/:semesterId", studentController.studentBill);
 router.delete("/enrollments/drop", validateRequest(dropEnrollmentZodSchema), studentController.dropEnrollment);
-router.get("/enrollments", studentController.getEnrolledCourses);
+router.get("/enrollments/:semesterId", studentController.getEnrolledCourses);
 router.get("/results", studentController.getResult);
 router.get("/results/statics", studentController.resultStatics);
-
+router.get("/academic-records", studentController.getAcademicRecords);
 
 export const studentRouter = router;
