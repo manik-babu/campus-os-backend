@@ -72,13 +72,18 @@ const getDepartments = catchAsync(async (req: Request, res: Response) => {
     })
 })
 const getFaculty = catchAsync(async (req: Request, res: Response) => {
-    const departmentId = req.query.departmentId as string | "";
+    const departmentId = req.query.departmentId as string | null;
+    const short = req.query.short === "true";
+    console.log({
+        departmentId,
+        short
+    })
     const result = await publicService.getFaculty(departmentId);
     sendResponse(res, {
         statusCode: status.OK,
         ok: true,
         message: "Faculty retrieved successfully",
-        data: result,
+        data: short ? result.map(faculty => ({ id: faculty.id, name: faculty.name, idNo: faculty.idNo })) : result
     })
 })
 const getCourses = catchAsync(async (req: Request, res: Response) => {

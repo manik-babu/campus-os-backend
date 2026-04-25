@@ -73,12 +73,12 @@ const getDepartments = async (programId: string) => {
     });
     return departments;
 }
-const getFaculty = async (departmentId: string) => {
+const getFaculty = async (departmentId: string | null) => {
     const faculty = await prisma.user.findMany({
         where: {
             role: UserRole.FACULTY,
             facultyProfile: {
-                departmentId: departmentId
+                ...(departmentId && { departmentId: departmentId })
             }
         },
         include: {

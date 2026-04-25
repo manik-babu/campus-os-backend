@@ -13,7 +13,9 @@ const registration = async ({ userData, profileData, uploadedImage }: IRegistrat
             }
         });
         if (!department) {
-            await cloudinary.uploader.destroy(uploadedImage.public_id); // Delete the uploaded image from Cloudinary
+            if (uploadedImage) {
+                await cloudinary.uploader.destroy(uploadedImage.public_id); // Delete the uploaded image from Cloudinary
+            }
             throw new AppError(404, "Department not found");
         }
     }
@@ -24,7 +26,9 @@ const registration = async ({ userData, profileData, uploadedImage }: IRegistrat
             }
         });
         if (!program) {
-            await cloudinary.uploader.destroy(uploadedImage.public_id); // Delete the uploaded image from Cloudinary
+            if (uploadedImage) {
+                await cloudinary.uploader.destroy(uploadedImage.public_id); // Delete the uploaded image from Cloudinary
+            }
             throw new AppError(404, "Program not found");
         }
     }
@@ -35,7 +39,9 @@ const registration = async ({ userData, profileData, uploadedImage }: IRegistrat
             }
         });
         if (!batch) {
-            await cloudinary.uploader.destroy(uploadedImage.public_id); // Delete the uploaded image from Cloudinary
+            if (uploadedImage) {
+                await cloudinary.uploader.destroy(uploadedImage.public_id); // Delete the uploaded image from Cloudinary
+            }
             throw new AppError(404, "Batch not found");
         }
     }
@@ -56,21 +62,36 @@ const registration = async ({ userData, profileData, uploadedImage }: IRegistrat
         idAndRegNo.idNo = (parseInt(lastUser.idNo) + 1).toString();
         idAndRegNo.registrationNo = `REG${parseInt(lastUser.idNo) + 1}`;
     }
+    const isExists = await prisma.user.findUnique({
+        where: {
+            email: userData.email
+        },
+        select: {
+            id: true
+        }
+    })
+    if (isExists) {
+        if (uploadedImage) {
+            await cloudinary.uploader.destroy(uploadedImage.public_id); // Delete the uploaded image from Cloudinary
+        }
+        throw new AppError(status.BAD_REQUEST, "User with this email already exists");
+    }
     const createdUser = await prisma.user.create({
         data: {
             ...userData,
             ...idAndRegNo,
-            image: uploadedImage.secure_url
+            image: userData.role === UserRole.STUDENT ? (profileData as StudentProfileWithoutId).image : uploadedImage?.secure_url || null
         },
     })
     // After creating the user, we need to create the corresponding profile based on the role
     try {
         let profile: StudentProfile | AdminProfile | FacultyProfile | null = null;
         if (createdUser.role === UserRole.STUDENT) {
+            const { image, ...restProfileData } = profileData as StudentProfileWithoutId;
             profile = await prisma.studentProfile.create({
                 data: {
                     userId: createdUser.id,
-                    ...profileData as StudentProfileWithoutId,
+                    ...restProfileData,
                     birthDate: (profileData as StudentProfileWithoutId).birthDate, // Convert birthDate to Date object
                 }
             })
@@ -92,26 +113,25 @@ const registration = async ({ userData, profileData, uploadedImage }: IRegistrat
                     phoneNumber: facultyProfile.phoneNumber,
                     salary: facultyProfile.salary,
                     presentAddress: facultyProfile.presentAddress,
-                    permanentAddress: facultyProfile.permanentAddress,
-                    graduations: {
-                        create: (facultyProfile).graduations?.map((graduation) => ({
-                            degree: graduation.degree,
-                            institute: graduation.institute,
-                            major: graduation.major,
-                            passingYear: graduation.passingYear,
-                        })) || []
-                    }
+                    permanentAddress: facultyProfile.permanentAddress
                 }
             });
         }
-
-        return { user: createdUser, profile };
+        return {
+            id: createdUser.id,
+            idNo: createdUser.idNo,
+            registrationNo: createdUser.registrationNo,
+            name: createdUser.name,
+            email: createdUser.email
+        }
     } catch (error) {
         // If profile creation fails, delete the created user to maintain data integrity
         await prisma.user.delete({
             where: { id: createdUser.id },
         });
-        cloudinary.uploader.destroy(uploadedImage.public_id); // Delete the uploaded image from Cloudinary
+        if (uploadedImage) {
+            await cloudinary.uploader.destroy(uploadedImage.public_id); // Delete the uploaded image from Cloudinary
+        }
         throw error; // Re-throw the error after cleanup
     }
 }

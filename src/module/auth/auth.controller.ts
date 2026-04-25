@@ -14,20 +14,24 @@ import AppError from "../../helper/AppError";
 
 const registration = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!req.file) {
+        const { parsedUserData, parsedProfileData } = getParsedData(req.body);
+
+        if (!req.file && parsedUserData.role !== UserRole.STUDENT) {
             throw new Error("Profile image is required");
         }
-        const { parsedUserData, parsedProfileData } = getParsedData(req.body);
         // Hash the password before saving to database
         const hashedPassword = await bcrypt.hash(parsedUserData.password, 10);
         parsedUserData.password = hashedPassword;
 
         // Upload the image to Cloudinary and get the URL
-        const uploadedImage: IUploadedImage = await uploadToCloudinary({
-            file: req.file as Express.Multer.File,
-            folder: `${env.CLOUDINARY_FOLDER}/profile-images`,
-            resource_type: "image"
-        });
+        let uploadedImage: IUploadedImage | null = null;
+        if (parsedUserData.role !== UserRole.STUDENT) {
+            uploadedImage = await uploadToCloudinary({
+                file: req.file as Express.Multer.File,
+                folder: `${env.CLOUDINARY_FOLDER}/profile-images`,
+                resource_type: "image"
+            });
+        }
 
         const result = await authService.registration({ userData: parsedUserData, profileData: parsedProfileData, uploadedImage });
         sendResponse(res, {

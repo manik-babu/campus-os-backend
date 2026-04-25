@@ -1,8 +1,8 @@
-import { Course, CourseOffering } from "../../../generated/prisma/client";
+import { AdmissionStatus, Course, CourseOffering } from "../../../generated/prisma/client";
 import { LoggedInUser } from "../../@types/loggedInUser";
 import AppError from "../../helper/AppError";
 import { prisma } from "../../lib/prisma";
-import { EnrolledStudent, IEnrollBatchStudentsPayload, IStudent } from "./admin.interface";
+import { EnrolledStudent, getAdmissionFormsFilterQuery, IEnrollBatchStudentsPayload, IStudent } from "./admin.interface";
 
 const createBatch = async (admin: LoggedInUser, data: { departmentId: string; description?: string }) => {
     const adminInfo = await prisma.user.findUnique({
@@ -32,14 +32,18 @@ const createBatch = async (admin: LoggedInUser, data: { departmentId: string; de
             batchNo: batchNo,
         },
     });
-    return batch;
+    return {
+        id: batch.id,
+        batchNo: batch.batchNo,
+        description: batch.description,
+    };
 }
 
 const createCourse = async (payload: Omit<Course, "id" | "createdAt" | "updatedAt">) => {
     const course = await prisma.course.create({
         data: payload,
     });
-    return course;
+    return null;
 }
 
 const createCourseOffering = async (payload: Omit<CourseOffering, "id" | "createdAt" | "updatedAt">) => {
@@ -162,29 +166,189 @@ const enrollBatchStudents = async (payload: IEnrollBatchStudentsPayload) => {
     });
     return enrollStudentData;
 };
-const getAdmissionForms = async (admin: LoggedInUser) => {
-    const adminInfo = await prisma.user.findUnique({
-        where: {
-            id: admin.id,
-        },
-        select: {
-            adminProfile: true,
-        },
-    });
-    if (!adminInfo || !adminInfo.adminProfile) {
-        throw new AppError(403, "You are not authorized to view admission forms");
-    }
+const getAdmissionForms = async (admin: LoggedInUser, filterQuery: getAdmissionFormsFilterQuery) => {
     const forms = await prisma.admissionForm.findMany({
         where: {
-            departmentId: adminInfo.adminProfile?.departmentId,
+            departmentId: admin.departmentId as string,
+            status: AdmissionStatus.PENDING,
+            OR: [
+                {
+                    name: {
+                        contains: filterQuery.search,
+                        mode: "insensitive",
+                    },
+                },
+                {
+                    phoneNumber: {
+                        contains: filterQuery.search,
+                        mode: "insensitive",
+                    },
+                },
+                {
+                    email: {
+                        contains: filterQuery.search,
+                        mode: "insensitive",
+                    },
+                },
+            ],
+        },
+        take: filterQuery.limit,
+        skip: (filterQuery.page - 1) * filterQuery.limit,
+        orderBy: {
+            createdAt: filterQuery.sortBy,
+        },
+        select: {
+            id: true,
+            name: true,
+            image: true,
+            createdAt: true,
+        }
+    });
+    const metaData = await prisma.admissionForm.count({
+        where: {
+            departmentId: admin.departmentId as string,
+            status: AdmissionStatus.PENDING,
+            name: {
+                contains: filterQuery.search,
+                mode: "insensitive",
+            },
+            phoneNumber: {
+                contains: filterQuery.search,
+                mode: "insensitive",
+            },
+            email: {
+                contains: filterQuery.search,
+                mode: "insensitive",
+            },
         },
     });
-    return forms;
+    return {
+        forms,
+        meta: {
+            total: metaData,
+            page: filterQuery.page,
+            limit: filterQuery.limit,
+            totalPages: Math.ceil(metaData / filterQuery.limit),
+        }
+    };
 }
+const getFormDetails = async (formId: string, admin: LoggedInUser) => {
+    const batch = await prisma.batch.findFirst({
+        where: {
+            departmentId: admin.departmentId as string,
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+        select: {
+            id: true,
+            batchNo: true,
+        }
+    });
+    const form = await prisma.admissionForm.findUnique({
+        where: {
+            id: formId,
+        },
+        include: {
+            program: {
+                select: {
+                    name: true,
+                }
+            },
+            department: {
+                select: {
+                    name: true,
+                }
+            }
+        },
+        omit: {
+            status: true
+        }
+    });
+    return {
+        ...form,
+        batchId: batch?.id,
+        batchNo: batch?.batchNo,
+        program: form?.program.name,
+        department: form?.department.name,
+    };
+}
+
+const updateFormStatus = async (formId: string, status: AdmissionStatus) => {
+    const form = await prisma.admissionForm.update({
+        where: {
+            id: formId,
+        },
+        data: {
+            status,
+        },
+    });
+    return null;
+}
+
+const getAdminDashboardData = async (admin: LoggedInUser) => {
+    const totalStudents = await prisma.batch.findMany({
+        where: {
+            departmentId: admin.departmentId as string,
+        },
+        select: {
+            batchNo: true,
+            _count: {
+                select: {
+                    studentProfiles: true,
+                }
+            }
+        },
+        orderBy: {
+            createdAt: "asc",
+        }
+    })
+    const formattedTotalStudents = totalStudents.map(batch => ({
+        batchNo: batch.batchNo,
+        studentCount: batch._count.studentProfiles
+    }));
+    const admissionForms = await prisma.admissionForm.count({
+        where: {
+            departmentId: admin.departmentId as string,
+            status: AdmissionStatus.PENDING,
+        }
+    });
+    const totalFaculties = await prisma.user.count({
+        where: {
+            role: "FACULTY",
+            facultyProfile: {
+                departmentId: admin.departmentId as string,
+            }
+        }
+    });
+    const totalCourses = await prisma.course.count({
+        where: {
+            departmentId: admin.departmentId as string,
+        }
+    });
+    const totalBatches = await prisma.batch.count({
+        where: {
+            departmentId: admin.departmentId as string,
+        }
+    });
+    return {
+        students: formattedTotalStudents,
+        total: {
+            admissionForms: admissionForms,
+            faculties: totalFaculties,
+            courses: totalCourses,
+            batches: totalBatches,
+        }
+    };
+}
+
 export const adminService = {
     createBatch,
     createCourse,
     createCourseOffering,
     getAdmissionForms,
+    getFormDetails,
     enrollBatchStudents,
+    updateFormStatus,
+    getAdminDashboardData
 };

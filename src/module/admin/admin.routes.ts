@@ -12,5 +12,7 @@ router.post("/create-course", validateRequest(CourseZodSchema), adminController.
 router.post("/create-course-offering", validateRequest(CourseOfferingZodSchema), adminController.createCourseOffering);
 router.get("/admission-forms", adminController.getAdmissionForms);
 router.post("/enroll-batch-students", adminController.enrollBatchStudents);
-
+router.get("/admission-forms/:formId", adminController.getFormDetails);
+router.patch("/admission-forms/:formId/status", adminController.updateFormStatus);
+router.get("/dashboard", adminController.getAdminDashboardData);
 export const adminRouter = router;

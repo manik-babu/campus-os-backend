@@ -19,3 +19,10 @@ export interface IStudent {
     idNo: string;
     name: string;
 }
+
+export interface getAdmissionFormsFilterQuery {
+    search: string;
+    sortBy: "asc" | "desc";
+    limit: number;
+    page: number;
+}

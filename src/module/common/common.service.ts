@@ -26,6 +26,7 @@ const getBatches = async (departmentId: string) => {
         select: {
             id: true,
             batchNo: true,
+            description: true,
         }
     });
     return batches;
@@ -177,7 +178,6 @@ const getUserDetails = async (userId: string) => {
                             name: true
                         }
                     },
-                    graduations: true
                 }
             }
         }
