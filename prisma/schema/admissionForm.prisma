@@ -1,10 +1,10 @@
 model AdmissionForm {
-    id               String          @id @default(uuid())
+    id               String              @id @default(uuid())
     image            String?
     programId        String
-    program          Program         @relation(fields: [programId], references: [id])
+    program          Program             @relation(fields: [programId], references: [id])
     departmentId     String
-    department       Department      @relation(fields: [departmentId], references: [id])
+    department       Department          @relation(fields: [departmentId], references: [id])
     name             String
     email            String
     fatherName       String
@@ -15,16 +15,17 @@ model AdmissionForm {
     phoneNumber      String
     schoolName       String
     collegeName      String
-    sscGpa           Decimal         @db.Decimal(3, 2)
-    hscGpa           Decimal         @db.Decimal(3, 2)
+    sscGpa           Decimal             @db.Decimal(3, 2)
+    hscGpa           Decimal             @db.Decimal(3, 2)
     sscPassingYear   Int
     hscPassingYear   Int
     bloodGroup       String?
     sscDoc           String?
     hscDoc           String?
-    createdAt        DateTime        @default(now())
-    updatedAt        DateTime        @updatedAt
-    status           AdmissionStatus @default(PENDING)
+    gender           AdmissionUserGender
+    createdAt        DateTime            @default(now())
+    updatedAt        DateTime            @updatedAt
+    status           AdmissionStatus     @default(PENDING)
 
     @@map("admission_forms")
 }
@@ -33,4 +34,10 @@ enum AdmissionStatus {
     PENDING
     APPROVED
     REJECTED
+}
+
+enum AdmissionUserGender {
+    MALE
+    FEMALE
+    OTHER
 }

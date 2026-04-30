@@ -62,7 +62,8 @@ const getCoursePosts = async (classId: string, search: IGetCoursePosts) => {
                     id: true,
                     name: true,
                     idNo: true,
-                    role: true
+                    role: true,
+                    image: true
                 }
             }
         },

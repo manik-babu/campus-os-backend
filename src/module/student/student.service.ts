@@ -128,7 +128,20 @@ const studentBill = async (studentId: string, semesterId: string) => {
     }
     const totalAmount = bill.billItems.reduce((acc, item) => acc + Number(item.totalAmount), 0) || 0;
     const totalPayments = bill.payments.reduce((acc, payment) => acc + Number(payment.amount), 0) || 0;
-    return { ...bill, semester: bill.semester.name, totalAmount, totalPayments, dueAmount: totalAmount - totalPayments };
+    const midtermPayment = {
+        amount: Math.floor(totalAmount / 2),
+        isPaid: bill.payments.some(payment => payment.status === "PAID" && Number(payment.amount) >= Math.floor(totalAmount / 2)),
+        name: "Midterm",
+        isDisabled: totalPayments != 0
+    };
+    const finalPayment = {
+        amount: totalAmount - midtermPayment.amount,
+        isPaid: totalPayments >= totalAmount,
+        name: "Final",
+        isDisabled: totalPayments == 0
+    };
+
+    return { ...bill, semester: bill.semester.name, totalAmount, totalPayments, dueAmount: totalAmount - totalPayments, payments: [midtermPayment, finalPayment] };
 };
 const dropEnrollment = async (enrollmentId: string, student: LoggedInUser) => {
     const enrollment = await prisma.enrollment.count({

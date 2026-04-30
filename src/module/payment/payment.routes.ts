@@ -5,5 +5,6 @@ import { paymentController } from "./payment.controller";
 //? /api/v1/payment/...  -> paymentRoute
 const router = Router();
 
-router.post("/webhook", express.raw({ type: 'application/json' }), paymentController.webHookHandler);
+// router.post("/webhook", express.raw({ type: 'application/json' }), paymentController.webHookHandler);
+router.post("/create-payment", paymentController.createPaymentIntent);
 export const paymentRouter = router;

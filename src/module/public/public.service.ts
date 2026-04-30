@@ -59,10 +59,10 @@ const getPrograms = async () => {
     });
     return programs;
 }
-const getDepartments = async (programId: string) => {
+const getDepartments = async (programId: string | null) => {
     const departments = await prisma.department.findMany({
         where: {
-            programId: programId
+            ...(programId && { programId: programId })
         },
         select: {
             id: true,

@@ -8,7 +8,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "seed:superAdmin": "tsx src/scripts/seedSuperAdmin.ts",
-    "stripe:webhook": "stripe listen --forward-to localhost:8080/api/v1/payment/webhook"
+    "stripe:webhook": "stripe listen --forward-to localhost:8080/webhook"
   },
   "keywords": [],
   "author": "",
@@ -43,6 +43,7 @@
     "pg": "^8.20.0",
     "puppeteer": "^24.40.0",
     "stripe": "^21.0.1",
+    "uuid": "^14.0.0",
     "zod": "^4.3.6"
   }
 }

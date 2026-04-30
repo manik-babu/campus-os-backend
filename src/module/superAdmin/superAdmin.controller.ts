@@ -46,9 +46,24 @@ const createSemester = async (req: Request, res: Response, next: NextFunction) =
     }
 }
 
+const getDashboardData = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await superAdminService.getDashboardData();
+        sendResponse(res, {
+            statusCode: status.OK,
+            ok: true,
+            message: "Dashboard data fetched successfully",
+            data: result,
+        });
+    } catch (error: any) {
+        next(error);
+    }
+}
+
 export const superAdminController = {
     createProgram,
     createDepartment,
     createSemester,
+    getDashboardData,
 
 }

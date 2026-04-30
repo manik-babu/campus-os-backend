@@ -6,6 +6,7 @@ import path from 'path';
 import globalErrorHandler from './middleware/globalErrorHandler';
 import notFoundHandler from './middleware/notFound';
 import cookieParser from 'cookie-parser';
+import { paymentController } from './module/payment/payment.controller';
 
 const app = express();
 
@@ -14,6 +15,8 @@ app.use(cors({
     origin: [process.env.FRONTEND_URL!],
     credentials: true
 }))
+app.post("/webhook", express.raw({ type: 'application/json' }), paymentController.webHookHandler);
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));

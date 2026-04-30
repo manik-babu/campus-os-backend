@@ -150,12 +150,23 @@ const updateStudentMark = async (studentMarks: IStudentMark) => {
                 classTest2: true,
                 midterm: true,
                 final: true,
-                attendance: true,
             }
         });
         const resultComplete = Object.values(updatedMark).every(value => value !== null);
         if (resultComplete) {
-            const { points, grade } = calculateGpa(Number(updatedMark.classTest1) + Number(updatedMark.classTest2) + Number(updatedMark.midterm) + Number(updatedMark.final) + Number(updatedMark.attendance));
+            const present = await prisma.attendance.count({
+                where: {
+                    enrollmentId,
+                    isPresent: true,
+                }
+            });
+            const totalClasses = await prisma.attendance.count({
+                where: {
+                    enrollmentId,
+                }
+            });
+            const attendanceMark = totalClasses > 0 ? Math.floor((present / totalClasses) * 10) : 10;
+            const { points, grade } = calculateGpa(Number(updatedMark.classTest1) + Number(updatedMark.classTest2) + Number(updatedMark.midterm) + Number(updatedMark.final) + Number(attendanceMark));
             await Promise.all([
                 prisma.enrollment.update({
                     where: {
@@ -172,6 +183,7 @@ const updateStudentMark = async (studentMarks: IStudentMark) => {
                     data: {
                         points,
                         grade,
+                        attendance: attendanceMark,
                     }
                 })
             ]);
@@ -251,10 +263,84 @@ const getAttendanceRecords = async (classId: string, year: number, month: number
     };
 };
 
+const getStudentMark = async (classId: string) => {
+    const results = await prisma.enrollment.findMany({
+        where: {
+            courseOfferingId: classId,
+        },
+        select: {
+            id: true,
+            student: {
+                select: {
+                    id: true,
+                    idNo: true,
+                    name: true,
+                }
+            },
+            result: {
+                select: {
+                    classTest1: true,
+                    classTest2: true,
+                    midterm: true,
+                    final: true,
+                    attendance: true,
+                }
+            }
+        }
+    })
+    const classDetails = await prisma.courseOffering.findUnique({
+        where: {
+            id: classId,
+        },
+        select: {
+            course: {
+                select: {
+                    title: true,
+                    code: true,
+                }
+            },
+            semester: {
+                select: {
+                    name: true,
+                }
+            },
+            batch: {
+                select: {
+                    batchNo: true,
+                }
+            },
+            department: {
+                select: {
+                    shortName: true,
+                }
+            }
+        },
+    });
+    const formattedResults = results.map(enrollment => ({
+        enrollmentId: enrollment.id,
+        studentId: enrollment.student.id,
+        studentIdNo: enrollment.student.idNo,
+        studentName: enrollment.student.name,
+        marks: enrollment.result,
+    }));
+    return {
+        classDetails: {
+            classId,
+            courseName: classDetails?.course.title,
+            courseCode: classDetails?.course.code,
+            semester: classDetails?.semester.name,
+            batch: classDetails?.batch.batchNo,
+            department: classDetails?.department.shortName,
+        },
+        studentMarks: formattedResults,
+    };
+};
+
 export const facultyService = {
     getClasses,
     enrolledStudents,
     takeAttendance,
     updateStudentMark,
-    getAttendanceRecords
+    getAttendanceRecords,
+    getStudentMark,
 }

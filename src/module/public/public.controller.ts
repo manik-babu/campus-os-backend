@@ -59,11 +59,8 @@ const getPrograms = catchAsync(async (req: Request, res: Response) => {
     })
 })
 const getDepartments = catchAsync(async (req: Request, res: Response) => {
-    const programId = req.query.programId;
-    if (!programId) {
-        throw new AppError(400, "You must provide a programId");
-    }
-    const result = await publicService.getDepartments(programId as string);
+    const programId = (req.query.programId || null) as string | null;
+    const result = await publicService.getDepartments(programId);
     sendResponse(res, {
         statusCode: status.OK,
         ok: true,

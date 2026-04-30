@@ -74,10 +74,24 @@ const getAttendanceRecords = catchAsync(async (req: Request, res: Response,) => 
     });
 });
 
+const getStudentMark = catchAsync(async (req: Request, res: Response,) => {
+    const classId = req.params.classId;
+    if (!classId) {
+        throw new AppError(status.NOT_FOUND, "Class ID is required");
+    }
+    const result = await facultyService.getStudentMark(classId as string);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Student mark retrieved successfully",
+        data: result,
+    });
+});
 export const facultyController = {
     getClasses,
     enrolledStudents,
     takeAttendance,
     updateStudentMark,
-    getAttendanceRecords
+    getAttendanceRecords,
+    getStudentMark,
 }

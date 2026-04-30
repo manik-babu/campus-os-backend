@@ -9,4 +9,6 @@ const router = Router();
 router.post("/create-program", validateRequest(programZodSchema), superAdminController.createProgram);
 router.post("/create-department", validateRequest(departmentZodSchema), superAdminController.createDepartment);
 router.post("/create-semester", validateRequest(semesterZodSchema), superAdminController.createSemester);
+router.get("/dashboard-data", superAdminController.getDashboardData);
+
 export const superAdminRouter = router;
