@@ -7,4 +7,5 @@ const router = Router();
 
 // router.post("/webhook", express.raw({ type: 'application/json' }), paymentController.webHookHandler);
 router.post("/create-payment", paymentController.createPaymentIntent);
+router.post("/admission-payment", paymentController.admissionPayment);
 export const paymentRouter = router;

@@ -5,6 +5,7 @@ import { v7 as uuidv7 } from "uuid";
 import { PaymentStatus } from "../../../generated/prisma/enums";
 import { env } from "../../config/env";
 import stripe from "../../config/stripe.config";
+import { PaymentName } from "../../@types/payment";
 
 const stripeWebHookEvent = async (event: Stripe.Event) => {
     //TODO: Handle the event and update the database accordingly
@@ -22,21 +23,40 @@ const stripeWebHookEvent = async (event: Stripe.Event) => {
         case "checkout.session.completed": {
             const session = event.data.object as Stripe.Checkout.Session;
 
-            const paymentId = session.metadata?.paymentId;
-            if (!paymentId) {
-                console.error("Payment ID not found in session metadata");
-                return;
-            }
-            await prisma.payment.update({
-                where: {
-                    id: paymentId
-                },
-                data: {
-                    status: PaymentStatus.PAID,
-                    stripeEventId: event.id
+            const paymentName = session.metadata?.paymentName as PaymentName;
+            if (paymentName === PaymentName.SEMESTER_FEE) {
+                const paymentId = session.metadata?.paymentId;
+                if (!paymentId) {
+                    console.error("Invalid payment metadata");
+                    return;
                 }
-            });
+                await prisma.payment.update({
+                    where: {
+                        id: paymentId
+                    },
+                    data: {
+                        status: PaymentStatus.PAID,
+                        stripeEventId: event.id
+                    }
+                });
+            }
+            else if (paymentName === PaymentName.ADMISSION_FEE) {
+                const admissionFormId = session.metadata?.admissionFormId;
+                if (!admissionFormId) {
+                    console.error("Invalid payment metadata");
+                    return;
+                }
+                await prisma.admissionForm.update({
+                    where: {
+                        id: admissionFormId
+                    },
+                    data: {
+                        isPaidFee: true
+                    }
+                });
+            }
             break;
+
 
         }
         case "checkout.session.expired": {
@@ -98,7 +118,48 @@ const createPaymentIntent = async (amount: number, billId: string, billName: str
             success_url: `${env.FRONTEND_URL}/student/payments/status?success=true`,
             cancel_url: `${env.FRONTEND_URL}/student/payments/status?success=false`,
             metadata: {
+                paymentName: PaymentName.SEMESTER_FEE,
                 paymentId: payment.id
+            }
+        });
+        return session;
+    });
+    return {
+        url: result.url
+    };
+}
+
+const admissionPayment = async (amount: number, admissionFormId: string) => {
+    const admissionForm = await prisma.admissionForm.findUnique({
+        where: {
+            id: admissionFormId
+        },
+    });
+    if (!admissionForm) {
+        throw new Error("Admission form not found");
+    }
+    const result = await prisma.$transaction(async (tx) => {
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'bdt',
+                        product_data: {
+                            name: "Admission Fee",
+                            description: "Payment for admission fee"
+                        },
+                        unit_amount: amount * 100, // Stripe expects amount in cents
+                    },
+                    quantity: 1,
+                },
+            ],
+            mode: 'payment',
+            success_url: `${env.FRONTEND_URL}/admission/payment/status?success=true`,
+            cancel_url: `${env.FRONTEND_URL}/admission/payment/status?success=false`,
+            metadata: {
+                paymentName: PaymentName.ADMISSION_FEE,
+                admissionFormId: admissionForm.id
             }
         });
         return session;
@@ -109,5 +170,6 @@ const createPaymentIntent = async (amount: number, billId: string, billName: str
 }
 export const paymentService = {
     stripeWebHookEvent,
-    createPaymentIntent
+    createPaymentIntent,
+    admissionPayment
 };

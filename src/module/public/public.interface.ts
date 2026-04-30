@@ -1,3 +1,5 @@
+import { AdmissionUserGender } from "../../../generated/prisma/enums";
+
 export type TAdmissionForm = {
     programId: string;
     departmentId: string;
@@ -16,6 +18,7 @@ export type TAdmissionForm = {
     sscPassingYear: number;
     hscPassingYear: number;
     bloodGroup?: string | null;
+    gender: AdmissionUserGender;
 }
 
 export interface IUploadedImage {

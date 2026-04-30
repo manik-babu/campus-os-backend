@@ -6,7 +6,7 @@ model AdmissionForm {
     departmentId     String
     department       Department          @relation(fields: [departmentId], references: [id])
     name             String
-    email            String
+    email            String              @unique
     fatherName       String
     motherName       String
     birthDate        DateTime
@@ -26,6 +26,7 @@ model AdmissionForm {
     createdAt        DateTime            @default(now())
     updatedAt        DateTime            @updatedAt
     status           AdmissionStatus     @default(PENDING)
+    isPaidFee        Boolean             @default(false)
 
     @@map("admission_forms")
 }

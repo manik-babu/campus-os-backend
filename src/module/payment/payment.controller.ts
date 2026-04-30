@@ -38,7 +38,22 @@ const createPaymentIntent = catchAsync(async (req: Request, res: Response) => {
         data: result
     });
 });
+const admissionPayment = catchAsync(async (req: Request, res: Response) => {
+    const { amount, admissionFormId } = req.body;
+    if (!amount || !admissionFormId) {
+        throw new AppError(status.BAD_REQUEST, "Amount and Admission Form ID are required");
+    }
+
+    const result = await paymentService.admissionPayment(amount, admissionFormId);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: `Payment successful for admission fee`,
+        data: result
+    });
+});
 export const paymentController = {
     webHookHandler,
-    createPaymentIntent
+    createPaymentIntent,
+    admissionPayment,
 };
