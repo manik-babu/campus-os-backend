@@ -10,5 +10,5 @@ const router = Router();
 router.post("/course-posts", upload.single("attachment"), classController.addCoursePost);
 router.get("/course-posts/:classId", classController.getCoursePosts);
 router.get("/course-posts/comments/:coursePostId", classController.getComments);
-
+router.delete("/course-posts/:postId", classController.deleteCoursePost);
 export const classRouter = router;

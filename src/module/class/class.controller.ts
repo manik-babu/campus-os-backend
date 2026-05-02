@@ -70,9 +70,22 @@ const getComments = catchAsync(async (req: Request, res: Response) => {
         data: result
     })
 });
+const deleteCoursePost = catchAsync(async (req: Request, res: Response) => {
+    const postId = req.params.postId as string;
+    const userId = req.user?.id as string;
+    await classService.deleteCoursePost(postId, userId);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Course post deleted successfully",
+        data: null
+    })
+});
+
 
 export const classController = {
     addCoursePost,
     getCoursePosts,
-    getComments
+    getComments,
+    deleteCoursePost,
 }

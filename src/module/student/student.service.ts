@@ -108,6 +108,9 @@ const studentBill = async (studentId: string, semesterId: string) => {
                 }
             },
             payments: {
+                where: {
+                    status: "PAID",
+                },
                 select: {
                     id: true,
                     amount: true,
@@ -128,17 +131,22 @@ const studentBill = async (studentId: string, semesterId: string) => {
     }
     const totalAmount = bill.billItems.reduce((acc, item) => acc + Number(item.totalAmount), 0) || 0;
     const totalPayments = bill.payments.reduce((acc, payment) => acc + Number(payment.amount), 0) || 0;
+
+    const midDue = Math.floor(totalAmount / 2);
+    const finalDue = totalAmount - midDue;
+
+
     const midtermPayment = {
-        amount: Math.floor(totalAmount / 2),
-        isPaid: bill.payments.some(payment => payment.status === "PAID" && Number(payment.amount) >= Math.floor(totalAmount / 2)),
+        amount: Math.max(0, midDue - totalPayments),
+        isPaid: totalPayments >= midDue,
         name: "Midterm",
-        isDisabled: totalPayments != 0
+        isDisabled: false,
     };
     const finalPayment = {
-        amount: totalAmount - midtermPayment.amount,
+        amount: Math.min(finalDue, Math.max(0, totalAmount - totalPayments)),
         isPaid: totalPayments >= totalAmount,
         name: "Final",
-        isDisabled: totalPayments == 0
+        isDisabled: totalPayments < midDue,
     };
 
     return { ...bill, semester: bill.semester.name, totalAmount, totalPayments, dueAmount: totalAmount - totalPayments, payments: [midtermPayment, finalPayment] };
