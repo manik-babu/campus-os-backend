@@ -11,6 +11,8 @@ import { IUploadedImage } from "./user.interface";
 import { UserRole } from "../../../generated/prisma/enums";
 import catchAsync from "../../utils/catchAsync";
 import AppError from "../../helper/AppError";
+import { sendRegistrationEmail } from "../../helper/registrationEmail";
+import { sendResetPasswordEmail } from "../../helper/resetPassword";
 
 const registration = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -34,6 +36,13 @@ const registration = async (req: Request, res: Response, next: NextFunction) => 
         }
 
         const result = await authService.registration({ userData: parsedUserData, profileData: parsedProfileData, uploadedImage });
+        await sendRegistrationEmail({
+            name: result.name,
+            email: result.email,
+            role: result.role,
+            idNo: result.idNo,
+            registrationNo: result.registrationNo,
+        });
         sendResponse(res, {
             statusCode: status.CREATED,
             ok: true,
@@ -111,8 +120,54 @@ const changePassword = catchAsync(async (req: Request, res: Response) => {
         data: true,
     });
 });
+const sendResentPasswordEmail = catchAsync(async (req: Request, res: Response,) => {
+    const { email } = req.body;
+
+    const isUserExist = await authService.isUserExist(email);
+    if (!isUserExist) {
+        throw new AppError(status.NOT_FOUND, "User with this email does not exist");
+    }
+    // Generate a random password
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
+
+    await sendResetPasswordEmail({
+        otp,
+        name: isUserExist.name,
+        email: isUserExist.email,
+    });
+    const hashedOtp = await bcrypt.hash(otp, 10);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Password reset email sent successfully",
+        data: {
+            hashedOtp,
+            email
+        },
+    })
+});
+const resetPassword = catchAsync(async (req: Request, res: Response,) => {
+    const { email, newPassword } = req.body;
+    if (!email || !newPassword) {
+        throw new AppError(status.BAD_REQUEST, "Email and new password are required");
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const result = await authService.resetPassword(email, hashedPassword);
+
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Password reset successfully",
+        data: result
+    })
+})
+
+
+
 export const authController = {
     registration,
     login,
     changePassword,
+    resetPassword,
+    sendResentPasswordEmail
 }

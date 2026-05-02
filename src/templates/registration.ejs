@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Uttara University</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .intro-text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .credentials-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .credentials-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #333;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .credentials-title::before {
+            content: "🔐";
+            margin-right: 8px;
+        }
+
+        .credential-item {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .credential-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .credential-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .credential-value {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .password-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            font-size: 12px;
+            color: #856404;
+        }
+
+        .password-note strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .next-steps {
+            background: #e8f5e9;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #4caf50;
+        }
+
+        .next-steps-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #2e7d32;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .next-steps-title::before {
+            content: "✓";
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .step {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .step:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .step:last-child {
+            margin-bottom: 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 25px;
+            transition: transform 0.2s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 25px 30px;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .footer-link {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 20px 0;
+        }
+
+        .role-specific-message {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 6px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 0;
+            }
+
+            .content {
+                padding: 25px 20px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .credential-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .credential-value {
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎓 Welcome to Uttara University</h1>
+            <p>Your Academic Journey Begins Here</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Greeting -->
+            <div class="greeting">
+                Hello <strong>
+                    <%= name %>
+                </strong>,
+            </div>
+
+            <!-- Role Badge -->
+            <div class="role-badge">
+                <%= role %>
+            </div>
+
+            <!-- Introduction -->
+            <div class="intro-text">
+                <% if (role==='STUDENT' ) { %>
+                    Welcome to Uttara University! We're excited to have you as part of our academic community. Your
+                    account has been successfully created and is ready to use.
+                    <% } else if (role==='FACULTY' ) { %>
+                        Welcome to Uttara University! We're pleased to have you on board as a faculty member. Your
+                        account has been successfully created and you can now access all teaching and management
+                        resources.
+                        <% } else if (role==='ADMIN' ) { %>
+                            Welcome to Uttara University! Your administrator account has been successfully created. You
+                            now have access to the administrative dashboard and management tools.
+                            <% } %>
+            </div>
+
+            <!-- Role-Specific Message -->
+            <% if (role==='STUDENT' ) { %>
+                <div class="role-specific-message">
+                    📚 As a student, you'll have access to course materials, assignment submissions, grades, and
+                    communication tools with your instructors.
+                </div>
+                <% } else if (role==='FACULTY' ) { %>
+                    <div class="role-specific-message">
+                        👨‍🏫 As a faculty member, you can manage courses, create assignments, track student progress,
+                        and communicate with your students.
+                    </div>
+                    <% } else if (role==='ADMIN' ) { %>
+                        <div class="role-specific-message">
+                            ⚙️ As an administrator, you have full access to manage users, departments, programs, and
+                            system configurations.
+                        </div>
+                        <% } %>
+
+                            <!-- Credentials Section -->
+                            <div class="credentials-section">
+                                <div class="credentials-title">Your Credentials</div>
+
+                                <div class="credential-item">
+                                    <span class="credential-label">Full Name</span>
+                                    <span class="credential-value">
+                                        <%= name %>
+                                    </span>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <div class="credential-item">
+                                    <span class="credential-label">Email Address</span>
+                                    <span class="credential-value">
+                                        <%= email %>
+                                    </span>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <div class="credential-item">
+                                    <span class="credential-label">ID Number</span>
+                                    <span class="credential-value">
+                                        <%= idNo %>
+                                    </span>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <div class="credential-item">
+                                    <span class="credential-label">Registration Number</span>
+                                    <span class="credential-value">
+                                        <%= registrationNo %>
+                                    </span>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <div class="credential-item">
+                                    <span class="credential-label">Temporary Password</span>
+                                    <span class="credential-value">
+                                        <%= password %>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Password Note -->
+                            <div class="password-note">
+                                <strong>⚠️ Important Security Notice:</strong>
+                                Your password is your email address. Please keep it safe and do not share it with
+                                anyone. We recommend changing your password after your first login.
+                            </div>
+
+                            <!-- Next Steps -->
+                            <div class="next-steps">
+                                <div class="next-steps-title">Getting Started</div>
+                                <div class="step">Visit the Uttara University portal and log in with your email and
+                                    password</div>
+                                <div class="step">Complete your profile information</div>
+                                <div class="step">
+                                    <% if (role==='STUDENT' ) { %>
+                                        Enroll in your courses and explore the learning materials
+                                        <% } else if (role==='FACULTY' ) { %>
+                                            Set up your course content and create your first assignment
+                                            <% } else if (role==='ADMIN' ) { %>
+                                                Review the system settings and user management dashboard
+                                                <% } %>
+                                </div>
+                                <div class="step">Change your password to something secure and memorable</div>
+                            </div>
+
+                            <!-- Support Information -->
+                            <div class="intro-text"
+                                style="background: #f5f5f5; padding: 15px; border-radius: 6px; margin-bottom: 25px;">
+                                <strong>Need Help?</strong><br>
+                                If you have any questions or need assistance, please don't hesitate to contact our
+                                support team at <a href="mailto:support@uttarauniversity.edu"
+                                    style="color: #667eea;">support@uttarauniversity.edu</a>
+                            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <strong>Uttara University</strong><br>
+            <span style="color: #999;">© 2026 Uttara University. All rights reserved.</span><br>
+            <div style="margin-top: 15px;">
+                <a href="#" class="footer-link">Privacy Policy</a> |
+                <a href="#" class="footer-link">Terms of Service</a> |
+                <a href="#" class="footer-link">Contact Us</a>
+            </div>
+            <div style="margin-top: 15px; font-size: 11px; color: #999;">
+                This is an automated email. Please do not reply directly to this message.
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

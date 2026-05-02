@@ -185,6 +185,7 @@ const getUserDetails = async (userId: string) => {
     return user;
 };
 const getAdmit = async (studentId: string, semesterId: string, exam: "Midterm" | "Final") => {
+    console.table({ studentId, semesterId, exam })
     const details = await prisma.user.findUnique({
         where: {
             idNo: studentId,
@@ -261,6 +262,7 @@ const getAdmit = async (studentId: string, semesterId: string, exam: "Midterm" |
             credits: enrollment.courseOffering.course.credits,
         })),
     }
+    console.log(formattedDetails)
     return formattedDetails;
 
 };

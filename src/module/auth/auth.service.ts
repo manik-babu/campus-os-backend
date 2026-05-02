@@ -122,7 +122,8 @@ const registration = async ({ userData, profileData, uploadedImage }: IRegistrat
             idNo: createdUser.idNo,
             registrationNo: createdUser.registrationNo,
             name: createdUser.name,
-            email: createdUser.email
+            email: createdUser.email,
+            role: createdUser.role,
         }
     } catch (error) {
         // If profile creation fails, delete the created user to maintain data integrity
@@ -195,9 +196,46 @@ const changePassword = async (userId: string, newPassword: string) => {
         }
     });
 }
+const isUserExist = async (email: string) => {
+    const user = await prisma.user.findUnique({
+        where: {
+            email
+        },
+        select: {
+            name: true,
+            email: true,
+        }
+    });
+    return user;
+}
+const resetPassword = async (email: string, hashedPassword: string) => {
+    const user = await prisma.user.findUnique({
+        where: {
+            email
+        },
+        select: {
+            id: true,
+        }
+    });
+    if (!user) {
+        throw new AppError(status.NOT_FOUND, "User not found");
+    }
+    await prisma.user.update({
+        where: {
+            id: user.id
+        },
+        data: {
+            password: hashedPassword
+        }
+    });
+    return null;
+}
+
 export const authService = {
     registration,
     login,
     getUserPass,
-    changePassword
+    changePassword,
+    isUserExist,
+    resetPassword,
 }

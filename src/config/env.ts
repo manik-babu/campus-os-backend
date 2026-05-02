@@ -14,6 +14,9 @@ type Env = {
     CLOUDINARY_FOLDER: string;
     STRIPE_SECRET_KEY: string;
     STRIPE_WEBHOOK_SECRET: string;
+    APP_EMAIL: string;
+    APP_PASSWORD: string;
+    APP_HOST: string;
 }
 
 const requiredEnvVars = [
@@ -28,7 +31,10 @@ const requiredEnvVars = [
     "CLOUDINARY_API_SECRET",
     "CLOUDINARY_FOLDER",
     "STRIPE_SECRET_KEY",
-    "STRIPE_WEBHOOK_SECRET"
+    "STRIPE_WEBHOOK_SECRET",
+    "APP_EMAIL",
+    "APP_PASSWORD",
+    "APP_HOST",
 ];
 requiredEnvVars.forEach((varName) => {
     if (!process.env[varName]) {
@@ -47,5 +53,8 @@ export const env: Env = {
     CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || '',
     CLOUDINARY_FOLDER: process.env.CLOUDINARY_FOLDER || '',
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || '',
-    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || ''
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || '',
+    APP_EMAIL: process.env.APP_EMAIL || '',
+    APP_PASSWORD: process.env.APP_PASSWORD || '',
+    APP_HOST: process.env.APP_HOST || '',
 };

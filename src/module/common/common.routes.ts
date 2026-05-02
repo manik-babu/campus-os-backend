@@ -11,7 +11,7 @@ router.get("/semesters", auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.FAC
 router.get("/course-offerings", auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.STUDENT, UserRole.FACULTY), commonController.getCourseOfferings);
 router.get("/course-offering-info/:courseOfferingId", auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.STUDENT, UserRole.FACULTY), commonController.getCourseOfferingInfo);
 router.get("/user-details", auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.STUDENT, UserRole.FACULTY), commonController.getUserDetails);
-router.get("/admit", commonController.getAdmit);
+router.get("/admit", auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.STUDENT, UserRole.FACULTY), commonController.getAdmit);
 
 router.get("/batches", auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.FACULTY, UserRole.STUDENT), commonController.getBatches);
 export const commonRouter = router;

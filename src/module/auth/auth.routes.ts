@@ -13,4 +13,6 @@ const router = Router();
 router.post("/register", auth(UserRole.ADMIN, UserRole.SUPER_ADMIN), upload.single("image"), authController.registration);
 router.post("/login", validateRequest(loginZodSchema), authController.login);
 router.patch("/change-password", auth(UserRole.ADMIN, UserRole.FACULTY, UserRole.STUDENT, UserRole.SUPER_ADMIN), validateRequest(changePasswordZodSchema), authController.changePassword);
+router.post("/forgot-password", authController.sendResentPasswordEmail);
+router.post('/reset-password', authController.resetPassword);
 export const authRouter = router;

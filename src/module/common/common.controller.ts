@@ -41,8 +41,12 @@ const getUserDetails = catchAsync(async (req: Request, res: Response) => {
     });
 });
 const getAdmit = catchAsync(async (req: Request, res: Response,) => {
-    const studentId = req.query.studentId;
-    const semesterId = req.query.semesterId;
+    let studentId = req.query.studentId as string;
+    if (!studentId) {
+        const user = req.user;
+        studentId = user?.idNo as string;
+    }
+    const semesterId = req.query.semesterId as string;
     const exam = req.query.exam as "Midterm" | "Final";
     if (!studentId || !semesterId || !exam) {
         throw new AppError(status.BAD_REQUEST, "Student ID, Semester ID and Exam type are required");
