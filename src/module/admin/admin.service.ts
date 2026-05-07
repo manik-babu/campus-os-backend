@@ -63,7 +63,10 @@ const createCourseOffering = async (payload: Omit<CourseOffering, "id" | "create
             departmentId: true,
         }
     });
-    return courseOffering;
+    return {
+        ...courseOffering,
+        creditFees: courseOffering.creditFees.toString(),
+    };
 }
 const enrollBatchStudents = async (payload: IEnrollBatchStudentsPayload) => {
     const students = await prisma.user.findMany({

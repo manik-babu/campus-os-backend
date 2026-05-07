@@ -5,6 +5,7 @@ import sendResponse from "../../utils/sendResponse";
 import catchAsync from "../../utils/catchAsync";
 import AppError from "../../helper/AppError";
 import { LoggedInUser } from "../../@types/loggedInUser";
+import { IEnrollBatchStudentsPayload } from "./admin.interface";
 
 const createBatch = catchAsync(async (req: Request, res: Response) => {
     const data = req.body;
@@ -29,6 +30,7 @@ const createCourse = catchAsync(async (req: Request, res: Response) => {
 
 const createCourseOffering = catchAsync(async (req: Request, res: Response) => {
     const result = await adminService.createCourseOffering(req.body);
+    await adminService.enrollBatchStudents(result);
     sendResponse(res, {
         statusCode: status.CREATED,
         ok: true,
