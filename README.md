@@ -99,7 +99,7 @@ This system supports multiple user roles including Super Admins, Admins, Faculty
 
 ```bash
 git clone https://github.com/manik-babu/campus-os-backend.git
-cd backend
+cd campus-os-backend
 ```
 
 ### Install Dependencies
