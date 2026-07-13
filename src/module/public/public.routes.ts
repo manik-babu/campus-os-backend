@@ -12,4 +12,5 @@ router.get("/programs", publicController.getPrograms);
 router.get("/departments", publicController.getDepartments);
 router.get("/faculty", publicController.getFaculty);
 router.get("/courses", publicController.getCourses);
+router.post("/contact", publicController.contactUs);
 export const publicRouter = router;

@@ -7,6 +7,7 @@ import { uploadToCloudinary } from "../../config/cloudinary";
 import { env } from "../../config/env";
 import catchAsync from "../../utils/catchAsync";
 import AppError from "../../helper/AppError";
+import { sendContactEmail } from "../../helper/contactEmail";
 
 
 const createAdmissionForm = async (req: Request, res: Response, next: NextFunction) => {
@@ -97,6 +98,18 @@ const getCourses = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const contactUs = catchAsync(async (req: Request, res: Response) => {
+    const { name, email, message } = req.body;
+    if (!name || !email || !message) {
+        throw new AppError(400, "All fields are required");
+    }
+    await sendContactEmail({ name, email, message });
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Your message has been sent successfully",
+    });
+});
 
 export const publicController = {
     createAdmissionForm,
@@ -104,4 +117,5 @@ export const publicController = {
     getDepartments,
     getFaculty,
     getCourses,
+    contactUs,
 }
