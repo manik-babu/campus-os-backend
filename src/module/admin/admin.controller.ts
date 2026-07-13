@@ -111,6 +111,17 @@ const getAdminDashboardData = catchAsync(async (req: Request, res: Response) => 
         data: result,
     })
 });
+const updateProfile = catchAsync(async (req: Request, res: Response) => {
+    const admin = req.user as LoggedInUser;
+    const { email, phoneNumber } = req.body;
+    const result = await adminService.updateProfile(admin.id, email, phoneNumber);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Profile updated successfully",
+        data: result,
+    })
+});
 export const adminController = {
     createBatch,
     createCourse,
@@ -120,4 +131,5 @@ export const adminController = {
     enrollBatchStudents,
     getFormDetails,
     getAdminDashboardData,
+    updateProfile,
 };

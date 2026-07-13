@@ -335,6 +335,45 @@ const getStudentMark = async (classId: string) => {
         studentMarks: formattedResults,
     };
 };
+const updateContact = async (facultyId: string, email: string, phoneNumber: string) => {
+    const record = await prisma.user.count({
+        where: {
+            email: email,
+        }
+    });
+    if (record > 0) {
+        throw new AppError(status.BAD_REQUEST, "Email already exists");
+    }
+    await prisma.$transaction(async (tx) => {
+        await tx.user.update({
+            where: {
+                id: facultyId,
+            },
+            data: {
+                email,
+            }
+        });
+        await tx.facultyProfile.update({
+            where: {
+                userId: facultyId,
+            },
+            data: {
+                phoneNumber,
+            }
+        });
+    });
+}
+const updateAddress = async (facultyId: string, presentAddress: string, permanentAddress: string) => {
+    await prisma.facultyProfile.update({
+        where: {
+            userId: facultyId,
+        },
+        data: {
+            presentAddress,
+            permanentAddress,
+        }
+    });
+}
 
 export const facultyService = {
     getClasses,
@@ -343,4 +382,6 @@ export const facultyService = {
     updateStudentMark,
     getAttendanceRecords,
     getStudentMark,
+    updateContact,
+    updateAddress,
 }

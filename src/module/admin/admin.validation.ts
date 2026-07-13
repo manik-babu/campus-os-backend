@@ -30,7 +30,8 @@ export const EnrollBatchStudentsZodSchema = z.object({
     semesterId: z.string().min(1, "Semester ID is required"),
     departmentId: z.string().min(1, "Department ID is required")
 });
-/**
 
-
- */
+export const UpdateProfileZodSchema = z.object({
+    email: z.email("Invalid email address"),
+    phoneNumber: z.string().min(10, "Phone number must be at least 10 characters long").max(15, "Phone number must be at most 15 characters long"),
+});

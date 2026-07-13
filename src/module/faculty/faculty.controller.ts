@@ -87,6 +87,41 @@ const getStudentMark = catchAsync(async (req: Request, res: Response,) => {
         data: result,
     });
 });
+const updateContact = catchAsync(async (req: Request, res: Response,) => {
+    const userId = req.user?.id;
+    if (!userId) {
+        throw new AppError(status.UNAUTHORIZED, "User ID is required");
+    }
+    const { email, phone } = req.body;
+    if (!email && !phone) {
+        throw new AppError(status.BAD_REQUEST, "At least one of email or phone is required");
+    }
+    const result = await facultyService.updateContact(req.user?.id as string, email, phone);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Contact updated successfully",
+        data: result,
+    });
+});
+const updateAddress = catchAsync(async (req: Request, res: Response,) => {
+    const userId = req.user?.id;
+    if (!userId) {
+        throw new AppError(status.UNAUTHORIZED, "User ID is required");
+    }
+    const { presentAddress, permanentAddress } = req.body;
+    if (!presentAddress && !permanentAddress) {
+        throw new AppError(status.BAD_REQUEST, "At least one of present address or permanent address is required");
+    }
+    const result = await facultyService.updateAddress(req.user?.id as string, presentAddress, permanentAddress);
+    sendResponse(res, {
+        statusCode: status.OK,
+        ok: true,
+        message: "Address updated successfully",
+        data: result,
+    });
+});
+
 export const facultyController = {
     getClasses,
     enrolledStudents,
@@ -94,4 +129,6 @@ export const facultyController = {
     updateStudentMark,
     getAttendanceRecords,
     getStudentMark,
+    updateContact,
+    updateAddress,
 }

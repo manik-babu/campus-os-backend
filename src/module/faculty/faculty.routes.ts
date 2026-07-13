@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { facultyController } from "./faculty.controller";
 import validateRequest from "../../middleware/validateRequest";
-import { AttendanceRecordZodSchema, studentMarkZodSchema } from "./faculty.validation";
+import { AttendanceRecordZodSchema, studentMarkZodSchema, updateContactSchema } from "./faculty.validation";
 
 
 const router = Router();
@@ -14,5 +14,7 @@ router.post("/students/attendance", validateRequest(AttendanceRecordZodSchema), 
 router.post("/students/marks", validateRequest(studentMarkZodSchema), facultyController.updateStudentMark);
 router.get("/students/attendance/:classId", facultyController.getAttendanceRecords);
 router.get("/students/marks/:classId", facultyController.getStudentMark);
+router.patch("/update-contact", validateRequest(updateContactSchema), facultyController.updateContact);
+router.patch("/update-address", facultyController.updateAddress);
 
 export const facultyRouter = router;

@@ -344,6 +344,37 @@ const getAdminDashboardData = async (admin: LoggedInUser) => {
         }
     };
 }
+const updateProfile = async (adminId: string, email: string, phoneNumber: string) => {
+    const record = await prisma.user.findFirst({
+        where: {
+            email: email,
+        },
+        select: {
+            id: true,
+        }
+    });
+    if (record) {
+        throw new AppError(400, "Email is already in use");
+    }
+    await prisma.$transaction(async (tx) => {
+        await tx.user.update({
+            where: {
+                id: adminId,
+            },
+            data: {
+                email,
+            },
+        });
+        await tx.adminProfile.update({
+            where: {
+                userId: adminId,
+            },
+            data: {
+                phoneNumber,
+            },
+        });
+    });
+}
 
 export const adminService = {
     createBatch,
@@ -353,5 +384,6 @@ export const adminService = {
     getFormDetails,
     enrollBatchStudents,
     updateFormStatus,
-    getAdminDashboardData
+    getAdminDashboardData,
+    updateProfile,
 };

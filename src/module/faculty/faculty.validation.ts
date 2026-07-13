@@ -18,3 +18,7 @@ export const studentMarkZodSchema = z.array(z.object({
         attendance: z.number().refine((val) => val >= 0 && val <= 10, "Attendance mark must be between 0 and 10").optional(),
     })
 }));
+export const updateContactSchema = z.object({
+    email: z.email("Invalid email address"),
+    phoneNumber: z.string().min(10, "Phone number must be at least 10 characters long").max(15, "Phone number must be at most 15 characters long"),
+});

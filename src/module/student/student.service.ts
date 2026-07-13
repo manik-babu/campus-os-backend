@@ -354,6 +354,45 @@ const getAcademicRecords = async (studentId: string) => {
         earnedCredits: earnedCredits.reduce((acc, curr) => acc + curr.courseOffering.course.credits, 0) || 0,
     }
 };
+const updateContact = async (studentId: string, email: string, phoneNumber: string) => {
+    const record = await prisma.user.count({
+        where: {
+            email: email,
+        }
+    });
+    if (record > 0) {
+        throw new AppError(status.BAD_REQUEST, "Email already exists");
+    }
+    await prisma.$transaction(async (tx) => {
+        await tx.user.update({
+            where: {
+                id: studentId,
+            },
+            data: {
+                email,
+            }
+        });
+        await tx.studentProfile.update({
+            where: {
+                userId: studentId,
+            },
+            data: {
+                phoneNumber,
+            }
+        });
+    });
+}
+const updateAddress = async (userId: string, presentAddress: string, permanentAddress: string) => {
+    await prisma.studentProfile.update({
+        where: {
+            userId: userId,
+        },
+        data: {
+            presentAddress,
+            permanentAddress,
+        }
+    });
+}
 export const studentService = {
     enrollSingleCourse,
     studentBill,
@@ -362,4 +401,6 @@ export const studentService = {
     getResult,
     resultStatics,
     getAcademicRecords,
+    updateAddress,
+    updateContact,
 };
