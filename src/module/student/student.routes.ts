@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { studentController } from "./student.controller";
 import validateRequest from "../../middleware/validateRequest";
-import { dropEnrollmentZodSchema, enrollSingleCourseZodSchema } from "./student.validation";
+import { dropEnrollmentZodSchema, enrollSingleCourseZodSchema, updateContactSchema } from "./student.validation";
 
 const router = Router();
 //? Define routes for student-related operations, such as enrolling in courses, viewing bills, and dropping courses.
@@ -14,5 +14,6 @@ router.get("/enrollments/:semesterId", studentController.getEnrolledCourses);
 router.get("/results", studentController.getResult);
 router.get("/results/statics", studentController.resultStatics);
 router.get("/academic-records", studentController.getAcademicRecords);
-
+router.patch("/update-contact", validateRequest(updateContactSchema), studentController.updateContact);
+router.patch("/update-address", studentController.updateAddress);
 export const studentRouter = router;
